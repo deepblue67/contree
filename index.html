@@ -1008,7 +1008,21 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2130</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2145</span></div>
+      </div>
+      <!-- Bouton micro setup -->
+      <button id="btn-micro-setup" onclick="startVoiceSetup()" title="Placer les joueurs à la voix" style="
+        position:absolute;right:12px;top:50%;transform:translateY(-50%);
+        background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);
+        border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;transition:all .2s;">
+        <span id="micro-setup-icon">🎤</span>
+      </button>
+      <!-- Barre feedback setup -->
+      <div id="micro-setup-bar" style="display:none;position:absolute;left:0;right:0;top:100%;
+        background:rgba(0,0,0,0.75);padding:6px 14px;z-index:200;text-align:center;">
+        <div id="micro-setup-transcript" style="font-size:12px;color:rgba(255,255,255,0.7);font-style:italic;"></div>
+        <div id="micro-setup-feedback" style="font-size:12px;color:rgba(255,220,100,0.95);font-weight:700;margin-top:2px;"></div>
       </div>
     </div>
     <div class="body">
@@ -3952,6 +3966,141 @@ function parseVoiceContrat(text) {
   else setMicroFeedback('\u274c Non reconnu — reessayez','error');
 }
 
+
+
+// ═══════════════════════════════════════════════════════════
+// RECONNAISSANCE VOCALE — CONFIGURATION
+// ═══════════════════════════════════════════════════════════
+let voiceSetupRecognition = null;
+let voiceSetupActive = false;
+
+function startVoiceSetup() {
+  if (voiceSetupActive) { stopVoiceSetup(); return; }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    setSetupFeedback('⚠️ Reconnaissance vocale non supportée', 'error'); return;
+  }
+  voiceSetupRecognition = new SpeechRecognition();
+  voiceSetupRecognition.lang = 'fr-FR';
+  voiceSetupRecognition.continuous = false;
+  voiceSetupRecognition.interimResults = true;
+  voiceSetupRecognition.maxAlternatives = 3;
+
+  voiceSetupRecognition.onstart = () => {
+    voiceSetupActive = true;
+    const btn = eid('btn-micro-setup');
+    if(btn) btn.classList.add('micro-active');
+    eid('micro-setup-icon').textContent = '🔴';
+    eid('micro-setup-transcript').textContent = '🎙 Écoute…';
+    eid('micro-setup-feedback').textContent = '';
+    eid('micro-setup-bar').style.display = 'block';
+  };
+  voiceSetupRecognition.onresult = (event) => {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    eid('micro-setup-transcript').textContent = '« ' + transcript + ' »';
+    if (event.results[event.results.length-1].isFinal) {
+      parseVoiceSetup(transcript);
+    }
+  };
+  voiceSetupRecognition.onerror = (e) => {
+    stopVoiceSetup();
+    const msgs = {'not-allowed':'⚠️ Microphone non autorisé','no-speech':'🔇 Aucune parole','network':'⚠️ Erreur réseau','aborted':''};
+    if(msgs[e.error]) setSetupFeedback(msgs[e.error], 'error');
+  };
+  voiceSetupRecognition.onend = () => stopVoiceSetup();
+  voiceSetupRecognition.start();
+}
+
+function stopVoiceSetup() {
+  voiceSetupActive = false;
+  if(voiceSetupRecognition){ try{ voiceSetupRecognition.stop(); }catch(e){} }
+  const btn = eid('btn-micro-setup');
+  if(btn) btn.classList.remove('micro-active');
+  const icon = eid('micro-setup-icon');
+  if(icon) icon.textContent = '🎤';
+  setTimeout(() => {
+    const bar = eid('micro-setup-bar');
+    if(bar) bar.style.display = 'none';
+  }, 3500);
+}
+
+function setSetupFeedback(msg, type) {
+  const el = eid('micro-setup-feedback');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = type==='error' ? 'rgba(255,100,100,0.9)' : 'rgba(100,255,120,0.95)';
+}
+
+function parseVoiceSetup(text) {
+  const t = norm(text);
+
+  // ── Récupérer la liste des joueurs disponibles ──
+  let joueurs = [];
+  try { joueurs = JSON.parse(localStorage.getItem('bct_players') || '[]'); } catch(e) {}
+
+  // ── Détecter la position cardinale ──
+  const posMap = {
+    nord:  ['nord','north'],
+    sud:   ['sud','south'],
+    est:   ['est','east'],
+    ouest: ['ouest','west','quest']
+  };
+  let position = null;
+  for(const [pos, keys] of Object.entries(posMap)){
+    if(keys.some(k => t.includes(k))){ position = pos; break; }
+  }
+
+  // ── Détecter le joueur ──
+  // Chercher un joueur de la liste dans le texte (4 premières lettres)
+  let joueur = null;
+  for(const j of joueurs){
+    const jn = norm(j);
+    if(jn.length >= 3 && t.includes(jn.substring(0,4))){
+      joueur = j; break;
+    }
+  }
+  // Fallback : chercher n'importe quel mot de 4+ lettres qui n'est pas un mot-clé
+  if(!joueur){
+    const stopWords = new Set(['nord','sud','est','ouest','joue','jouer','joueur','place','pour','avec','au','en','le','la','les','un','une','de','du','des','ce','ca','qui','que','quoi','sont','sera','prend','prends','met','coeur','carreau','trefle','pique','montre','page','north','south','east','west']);
+    const words = t.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+    if(words.length) joueur = words[words.length-1]; // dernier mot significatif = le prénom
+  }
+
+  if(!position && !joueur){
+    setSetupFeedback('❌ Non reconnu — dites ex: "Christophe joue au nord"', 'error'); return;
+  }
+  if(!position){
+    setSetupFeedback('⚠️ Position non reconnue (nord/sud/est/ouest)', 'error'); return;
+  }
+  if(!joueur){
+    setSetupFeedback('⚠️ Prénom non reconnu', 'error'); return;
+  }
+
+  // ── Trouver le vrai prénom dans la liste (correspondance partielle) ──
+  let prenomFinal = joueur;
+  const jMatch = joueurs.find(j => norm(j).substring(0,4) === norm(joueur).substring(0,4));
+  if(jMatch) prenomFinal = jMatch;
+
+  // ── Appliquer dans le select ──
+  const selId = 'sel-' + position;
+  const sel = eid(selId);
+  if(sel){
+    // Vérifier que l'option existe dans le select
+    const opt = Array.from(sel.options).find(o => norm(o.value).substring(0,4) === norm(prenomFinal).substring(0,4));
+    if(opt){
+      sel.value = opt.value;
+      sel.dispatchEvent(new Event('change'));
+      setSetupFeedback('✅ ' + opt.value + ' placé au ' + position.charAt(0).toUpperCase() + position.slice(1), 'ok');
+    } else {
+      // Le joueur n'est pas dans la liste du select → l'ajouter si on connaît le vrai prénom
+      setSetupFeedback('⚠️ ' + prenomFinal + ' non trouvé dans la liste — ajoutez-le via 👥', 'error');
+    }
+    refreshTeamPreview();
+  }
+}
 
 setTimeout(() => {
   const splash = eid('splash');
