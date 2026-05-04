@@ -1008,7 +1008,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2104</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2130</span></div>
       </div>
     </div>
     <div class="body">
@@ -1108,6 +1108,20 @@
         <h1 id="game-title">Belote Contrée</h1>
         <div class="sub" id="game-sub" style="display:none;"></div>
       </div>
+      <!-- BOUTON MICRO dans le header -->
+      <button id="btn-micro" onclick="startVoiceContrat()" title="Commande vocale" style="
+        position:absolute;right:12px;top:50%;transform:translateY(-50%);
+        background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);
+        border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;transition:all .2s;">
+        <span id="micro-icon">🎤</span>
+      </button>
+      <!-- Feedback vocal (sous le header) -->
+      <div id="micro-bar" style="display:none;position:absolute;left:0;right:0;top:100%;
+        background:rgba(0,0,0,0.7);padding:6px 14px;z-index:200;text-align:center;">
+        <div id="micro-transcript" style="font-size:12px;color:rgba(255,255,255,0.7);font-style:italic;"></div>
+        <div id="micro-feedback" style="font-size:12px;color:rgba(255,220,100,0.95);font-weight:700;margin-top:2px;"></div>
+      </div>
     </div>
 
     <!-- TAB: EN JEU — PAGE PRINCIPALE -->
@@ -1138,22 +1152,6 @@
 
     <!-- TAB: CONTRACT INPUT -->
     <div id="tab-contrat" class="body" style="display:none;">
-
-      <!-- BOUTON MICRO -->
-      <div style="margin-bottom:12px;">
-        <button id="btn-micro" onclick="startVoiceContrat()" style="
-          width:100%;padding:14px;border-radius:14px;border:2px solid rgba(255,255,255,0.25);
-          background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-weight:700;
-          font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
-          transition:all .2s;">
-          <span id="micro-icon" style="font-size:22px;">🎤</span>
-          <span id="micro-label">Dicter le contrat</span>
-        </button>
-        <div id="micro-transcript" style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.6);
-          min-height:20px;text-align:center;font-style:italic;"></div>
-        <div id="micro-feedback" style="margin-top:4px;font-size:12px;color:rgba(255,220,100,0.9);
-          min-height:16px;text-align:center;font-weight:600;"></div>
-      </div>
 
       <div class="card">
         <div class="card-title">Contrat</div>
@@ -3783,11 +3781,12 @@ function startVoiceContrat() {
   voiceRecognition.onstart = () => {
     voiceActive = true;
     const btn = eid('btn-micro');
-    btn.classList.add('micro-active');
-    eid('micro-icon').textContent = '🔴';
-    eid('micro-label').textContent = 'Écoute en cours… (appuyez pour arrêter)';
-    eid('micro-transcript').textContent = '';
+    if(btn) btn.classList.add('micro-active');
+    const icon = eid('micro-icon');
+    if(icon) icon.textContent = '🔴';
+    eid('micro-transcript').textContent = '🎙 Écoute…';
     eid('micro-feedback').textContent = '';
+    showMicroBar(true);
   };
 
   voiceRecognition.onresult = (event) => {
@@ -3824,9 +3823,11 @@ function stopVoice() {
   const btn = eid('btn-micro');
   if (btn) {
     btn.classList.remove('micro-active');
-    eid('micro-icon').textContent = '🎤';
-    eid('micro-label').textContent = 'Dicter le contrat';
   }
+  const icon = eid('micro-icon');
+  if(icon) icon.textContent = '🎤';
+  // Masquer la barre de feedback après 4 secondes
+  setTimeout(()=>showMicroBar(false), 4000);
 }
 
 function setMicroFeedback(msg, type) {
@@ -3836,101 +3837,121 @@ function setMicroFeedback(msg, type) {
   el.style.color = type === 'error' ? 'rgba(255,100,100,0.9)' : 'rgba(100,255,120,0.95)';
 }
 
-function parseVoiceContrat(text) {
-  const t = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 
-  // ── 1. VALEUR ──
-  const valMap = {
-    'quatre-vingt': 80, 'quatre vingt': 80, '80': 80,
-    'quatre-vingt-dix': 90, 'quatre vingt dix': 90, '90': 90,
-    'cent': 100, '100': 100,
-    'cent dix': 110, '110': 110,
-    'cent vingt': 120, '120': 120,
-    'cent trente': 130, '130': 130,
-    'cent quarante': 140, '140': 140,
-    'cent cinquante': 150, '150': 150,
-    'cent soixante': 160, '160': 160,
-    'cent soixante-dix': 170, 'cent soixante dix': 170, '170': 170,
-    'capot': 250, 'generale': 250, 'général': 250
+function detectEquipe(t){
+  const p = {
+    nord:norm(S.pos.nord), sud:norm(S.pos.sud),
+    est:norm(S.pos.est),   ouest:norm(S.pos.ouest)
   };
-  let value = null;
-  // Chercher d'abord les mots complets, puis les chiffres
-  for (const [k, v] of Object.entries(valMap)) {
-    if (t.includes(k.normalize('NFD').replace(/[̀-ͯ]/g, ''))) { value = v; break; }
+  const k4 = pos => p[pos] ? p[pos].substring(0,4) : '';
+  const found1 = ['nord','sud'].filter(pos => k4(pos) && t.includes(k4(pos)));
+  const found2 = ['est','ouest'].filter(pos => k4(pos) && t.includes(k4(pos)));
+  // Un seul côté mentionné → facile
+  if(found1.length && !found2.length) return 't1';
+  if(found2.length && !found1.length) return 't2';
+  // Les deux côtés mentionnés → le premier cité dans la phrase désigne l'équipe preneuse
+  if(found1.length && found2.length){
+    const pos1 = Math.min(...found1.map(pos => t.indexOf(k4(pos))));
+    const pos2 = Math.min(...found2.map(pos => t.indexOf(k4(pos))));
+    return pos1 < pos2 ? 't1' : 't2';
   }
-  // Fallback: chercher un nombre dans le texte
-  if (!value) {
-    const nums = t.match(/(80|90|100|110|120|130|140|150|160|170)/);
-    if (nums) value = parseInt(nums[1]);
-  }
-
-  // ── 2. COULEUR ──
-  const suitMap = {
-    'coeur': { suit:'♥', key:'h', color:'red' },
-    'carreau': { suit:'♦', key:'d', color:'red' },
-    'trefle': { suit:'♣', key:'c', color:'dark' },
-    'pique': { suit:'♠', key:'s', color:'dark' }
-  };
-  let suitResult = null;
-  for (const [k, v] of Object.entries(suitMap)) {
-    if (t.includes(k)) { suitResult = v; break; }
-  }
-
-  // ── 3. ÉQUIPE PRENEUSE ──
-  let preneur = null;
-  const players = {
-    nord: (S.pos.nord || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
-    sud:  (S.pos.sud  || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
-    est:  (S.pos.est  || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
-    ouest:(S.pos.ouest|| '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-  };
-  // Compter combien de joueurs de chaque équipe sont mentionnés
-  let score1 = 0, score2 = 0;
-  [players.nord, players.sud].forEach(p => { if (p && t.includes(p.substring(0,4))) score1++; });
-  [players.est, players.ouest].forEach(p => { if (p && t.includes(p.substring(0,4))) score2++; });
-  if (score1 > score2) preneur = 't1';
-  else if (score2 > score1) preneur = 't2';
-  else if (t.includes('nord') || t.includes('sud')) preneur = 't1';
-  else if (t.includes('est') || t.includes('ouest')) preneur = 't2';
-
-  // ── 4. CONTRE / SURCONTRE ──
-  let contre = 'none';
-  if (t.includes('surcontre')) contre = 'surcontre';
-  else if (t.includes('contre')) contre = 'contre';
-
-  // ── 5. APPLIQUER ──
-  let applied = [];
-  let missing = [];
-
-  if (value) {
-    setContractVal(value);
-    applied.push(value === 250 ? 'Capot' : value);
-  } else { missing.push('valeur'); }
-
-  if (suitResult) {
-    selectSuit(suitResult.suit, suitResult.key, suitResult.color);
-    applied.push(suitResult.suit);
-  } else { missing.push('couleur'); }
-
-  if (preneur) {
-    selectPreneur(preneur);
-    applied.push(preneur === 't1' ? S.t1.name : S.t2.name);
-  } else { missing.push('équipe'); }
-
-  if (contre !== 'none') {
-    selectContre(contre);
-    applied.push(contre);
-  }
-
-  // ── 6. FEEDBACK ──
-  if (missing.length === 0) {
-    setMicroFeedback('✅ Contrat reconnu : ' + applied.join(' · '), 'ok');
-  } else if (applied.length > 0) {
-    setMicroFeedback('⚠️ Partiel : ' + applied.join(' · ') + ' — manque : ' + missing.join(', '), 'error');
-  } else {
-    setMicroFeedback('❌ Non reconnu — réessayez : valeur, couleur et équipe', 'error');
-  }
+  // Fallback positions cardinales
+  if(t.includes('nord')||t.includes('sud')) return 't1';
+  if(t.includes('est')||t.includes('ouest')) return 't2';
+  return null;
 }
+
+function detectValeur(t){
+  const vals = [
+    ['capot',250],['generale',250],['general',250],
+    ['cent soixante dix',170],['cent soixante-dix',170],['170',170],
+    ['cent soixante',160],['160',160],
+    ['cent cinquante',150],['150',150],
+    ['cent quarante',140],['140',140],
+    ['cent trente',130],['130',130],
+    ['cent vingt',120],['120',120],
+    ['cent dix',110],['110',110],
+    ['cent',100],['100',100],
+    ['quatre vingt dix',90],['quatre-vingt-dix',90],['90',90],
+    ['quatre vingt',80],['quatre-vingt',80],['80',80],
+  ];
+  for(const [k,v] of vals){ if(t.includes(norm(k))) return v; }
+  const m=t.match(/\b(80|90|100|110|120|130|140|150|160|170)\b/);
+  return m?parseInt(m[1]):null;
+}
+
+function detectSuit(t){
+  if(t.includes('coeur')||t.includes('coeurs')) return {suit:'\u2665',key:'h',color:'red'};
+  if(t.includes('carreau')||t.includes('carreaux')) return {suit:'\u2666',key:'d',color:'red'};
+  if(t.includes('trefle')||t.includes('trefles')) return {suit:'\u2663',key:'c',color:'dark'};
+  if(t.includes('pique')||t.includes('piques')) return {suit:'\u2660',key:'s',color:'dark'};
+  return null;
+}
+
+function showMicroBar(show){
+  const bar=eid('micro-bar');
+  if(bar) bar.style.display=show?'block':'none';
+}
+
+function parseVoiceContrat(text) {
+  const t = norm(text);
+
+  // Navigation vocale
+  const isNav = t.includes('page')||t.includes('montre')||t.includes('affiche')||t.includes('va ');
+  if(isNav){
+    if(t.includes('table')||t.includes('tapis')){ setMicroFeedback('\ud83d\udccd Page Table','ok'); setTimeout(()=>{ showTab('enjeu'); showMicroBar(false); },800); return; }
+    if(t.includes('score')||t.includes('feuille')||t.includes('marque')){ setMicroFeedback('\ud83d\udccd Page Score','ok'); setTimeout(()=>{ showTab('feuille'); showMicroBar(false); },800); return; }
+    if(t.includes('contrat')){ setMicroFeedback('\ud83d\udccd Page Contrat','ok'); setTimeout(()=>{ showTab('contrat'); showMicroBar(false); },800); return; }
+    if(t.includes('resultat')||t.includes('saisie')){ setMicroFeedback('\ud83d\udccd Page Resultat','ok'); setTimeout(()=>{ showTab('saisie'); showMicroBar(false); },800); return; }
+    if(t.includes('historique')){ setMicroFeedback('\ud83d\udccd Historique','ok'); setTimeout(()=>{ showTab('history'); showMicroBar(false); },800); return; }
+    if(t.includes('stat')){ setMicroFeedback('\ud83d\udccd Stats','ok'); setTimeout(()=>{ showTab('stats'); showMicroBar(false); },800); return; }
+  }
+
+  // Surcontre / Contre
+  const isSurcontre = t.includes('surcontre');
+  const isContre = !isSurcontre && (t.includes('contre ce')||t.includes('contrent')||(t.includes('contre')&&!t.includes('contrat')));
+  if(isSurcontre||isContre){
+    const eq=detectEquipe(t);
+    if(eq) selectPreneur(eq);
+    selectContre(isSurcontre?'surcontre':'contre');
+    showTab('contrat');
+    setMicroFeedback('\u2705 '+(isSurcontre?'Surcontre':'Contre')+(eq?' — '+(eq==='t1'?S.t1.name:S.t2.name):''),'ok');
+    return;
+  }
+
+  // Ont fait / Ont chute
+  const aFait = t.includes('ont fait')||t.includes('a fait')||t.includes('reussi');
+  const aChute = t.includes('ont chute')||t.includes('a chute')||t.includes('chutes');
+  if(aFait||aChute){
+    const eq=detectEquipe(t); const val=detectValeur(t); const suit=detectSuit(t);
+    let msg=aFait?'\u2705 Fait':'\u26d4 Chute';
+    if(eq){ selectPreneur(eq); msg+=' — '+(eq==='t1'?S.t1.name:S.t2.name); }
+    if(val){ setContractVal(val); msg+=' '+(val===250?'Capot':val); }
+    if(suit){ selectSuit(suit.suit,suit.key,suit.color); msg+=suit.suit; }
+    showTab('contrat');
+    setMicroFeedback(msg,'ok'); return;
+  }
+
+  // Contrat standard
+  const value=detectValeur(t);
+  const suitResult=detectSuit(t);
+  const preneur=detectEquipe(t);
+  let contre='none';
+  if(t.includes('surcontre')) contre='surcontre';
+  else if(t.includes('contre')&&!t.includes('contrat')) contre='contre';
+
+  let applied=[],missing=[];
+  if(value){ setContractVal(value); applied.push(value===250?'Capot':value); } else missing.push('valeur');
+  if(suitResult){ selectSuit(suitResult.suit,suitResult.key,suitResult.color); applied.push(suitResult.suit); } else missing.push('couleur');
+  if(preneur){ selectPreneur(preneur); applied.push(preneur==='t1'?S.t1.name:S.t2.name); } else missing.push('equipe');
+  if(contre!=='none'){ selectContre(contre); applied.push(contre); }
+  if(applied.length>0) showTab('contrat');
+  if(missing.length===0) setMicroFeedback('\u2705 '+applied.join(' \u00b7 '),'ok');
+  else if(applied.length>0) setMicroFeedback('\u26a0\ufe0f '+applied.join(' \u00b7 ')+' — manque : '+missing.join(', '),'error');
+  else setMicroFeedback('\u274c Non reconnu — reessayez','error');
+}
+
 
 setTimeout(() => {
   const splash = eid('splash');
