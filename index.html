@@ -935,6 +935,11 @@
     100% { transform: scale(1); }
   }
   .btn-bounce { animation: btnBounce 0.38s ease forwards; }
+  @keyframes microPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,80,80,0.7); background: rgba(200,30,30,0.5); }
+    50% { box-shadow: 0 0 0 12px rgba(255,80,80,0); background: rgba(220,50,50,0.7); }
+  }
+  .micro-active { animation: microPulse 1.2s ease infinite !important; border-color: rgba(255,100,100,0.8) !important; }
 
   .divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
   .card .divider { background: #ccc8be; }
@@ -1003,7 +1008,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20250428_2350</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2104</span></div>
       </div>
     </div>
     <div class="body">
@@ -1133,6 +1138,23 @@
 
     <!-- TAB: CONTRACT INPUT -->
     <div id="tab-contrat" class="body" style="display:none;">
+
+      <!-- BOUTON MICRO -->
+      <div style="margin-bottom:12px;">
+        <button id="btn-micro" onclick="startVoiceContrat()" style="
+          width:100%;padding:14px;border-radius:14px;border:2px solid rgba(255,255,255,0.25);
+          background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-weight:700;
+          font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+          transition:all .2s;">
+          <span id="micro-icon" style="font-size:22px;">🎤</span>
+          <span id="micro-label">Dicter le contrat</span>
+        </button>
+        <div id="micro-transcript" style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.6);
+          min-height:20px;text-align:center;font-style:italic;"></div>
+        <div id="micro-feedback" style="margin-top:4px;font-size:12px;color:rgba(255,220,100,0.9);
+          min-height:16px;text-align:center;font-weight:600;"></div>
+      </div>
+
       <div class="card">
         <div class="card-title">Contrat</div>
         <div class="field" style="margin-bottom:14px;">
@@ -3732,6 +3754,184 @@ window.addEventListener('resize', fixSetupTableSize);
 requestAnimationFrame(() => requestAnimationFrame(fixSetupTableSize));
 
 // Splash screen — disparaît après 1.5s
+
+// ═══════════════════════════════════════════════════════════
+// RECONNAISSANCE VOCALE — CONTRAT
+// ═══════════════════════════════════════════════════════════
+let voiceRecognition = null;
+let voiceActive = false;
+
+function startVoiceContrat() {
+  if (voiceActive) { stopVoice(); return; }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    setMicroFeedback('⚠️ Reconnaissance vocale non supportée sur ce navigateur', 'error');
+    return;
+  }
+
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.lang = 'fr-FR';
+  voiceRecognition.continuous = false;
+  voiceRecognition.interimResults = true;
+  voiceRecognition.maxAlternatives = 3;
+
+  // Précharger les prénoms des joueurs pour améliorer la reconnaissance
+  // (via grammaire si supportée)
+  const joueurs = [S.pos.nord, S.pos.sud, S.pos.est, S.pos.ouest].filter(Boolean);
+
+  voiceRecognition.onstart = () => {
+    voiceActive = true;
+    const btn = eid('btn-micro');
+    btn.classList.add('micro-active');
+    eid('micro-icon').textContent = '🔴';
+    eid('micro-label').textContent = 'Écoute en cours… (appuyez pour arrêter)';
+    eid('micro-transcript').textContent = '';
+    eid('micro-feedback').textContent = '';
+  };
+
+  voiceRecognition.onresult = (event) => {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    eid('micro-transcript').textContent = '« ' + transcript + ' »';
+
+    if (event.results[event.results.length - 1].isFinal) {
+      parseVoiceContrat(transcript);
+    }
+  };
+
+  voiceRecognition.onerror = (e) => {
+    stopVoice();
+    const msgs = {
+      'not-allowed': '⚠️ Microphone non autorisé — vérifiez les permissions',
+      'no-speech':   '🔇 Aucune parole détectée — réessayez',
+      'network':     '⚠️ Erreur réseau',
+      'aborted':     ''
+    };
+    if (msgs[e.error] !== undefined) setMicroFeedback(msgs[e.error] || '', 'error');
+  };
+
+  voiceRecognition.onend = () => { stopVoice(); };
+
+  voiceRecognition.start();
+}
+
+function stopVoice() {
+  voiceActive = false;
+  if (voiceRecognition) { try { voiceRecognition.stop(); } catch(e) {} }
+  const btn = eid('btn-micro');
+  if (btn) {
+    btn.classList.remove('micro-active');
+    eid('micro-icon').textContent = '🎤';
+    eid('micro-label').textContent = 'Dicter le contrat';
+  }
+}
+
+function setMicroFeedback(msg, type) {
+  const el = eid('micro-feedback');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = type === 'error' ? 'rgba(255,100,100,0.9)' : 'rgba(100,255,120,0.95)';
+}
+
+function parseVoiceContrat(text) {
+  const t = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+  // ── 1. VALEUR ──
+  const valMap = {
+    'quatre-vingt': 80, 'quatre vingt': 80, '80': 80,
+    'quatre-vingt-dix': 90, 'quatre vingt dix': 90, '90': 90,
+    'cent': 100, '100': 100,
+    'cent dix': 110, '110': 110,
+    'cent vingt': 120, '120': 120,
+    'cent trente': 130, '130': 130,
+    'cent quarante': 140, '140': 140,
+    'cent cinquante': 150, '150': 150,
+    'cent soixante': 160, '160': 160,
+    'cent soixante-dix': 170, 'cent soixante dix': 170, '170': 170,
+    'capot': 250, 'generale': 250, 'général': 250
+  };
+  let value = null;
+  // Chercher d'abord les mots complets, puis les chiffres
+  for (const [k, v] of Object.entries(valMap)) {
+    if (t.includes(k.normalize('NFD').replace(/[̀-ͯ]/g, ''))) { value = v; break; }
+  }
+  // Fallback: chercher un nombre dans le texte
+  if (!value) {
+    const nums = t.match(/(80|90|100|110|120|130|140|150|160|170)/);
+    if (nums) value = parseInt(nums[1]);
+  }
+
+  // ── 2. COULEUR ──
+  const suitMap = {
+    'coeur': { suit:'♥', key:'h', color:'red' },
+    'carreau': { suit:'♦', key:'d', color:'red' },
+    'trefle': { suit:'♣', key:'c', color:'dark' },
+    'pique': { suit:'♠', key:'s', color:'dark' }
+  };
+  let suitResult = null;
+  for (const [k, v] of Object.entries(suitMap)) {
+    if (t.includes(k)) { suitResult = v; break; }
+  }
+
+  // ── 3. ÉQUIPE PRENEUSE ──
+  let preneur = null;
+  const players = {
+    nord: (S.pos.nord || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
+    sud:  (S.pos.sud  || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
+    est:  (S.pos.est  || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
+    ouest:(S.pos.ouest|| '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  };
+  // Compter combien de joueurs de chaque équipe sont mentionnés
+  let score1 = 0, score2 = 0;
+  [players.nord, players.sud].forEach(p => { if (p && t.includes(p.substring(0,4))) score1++; });
+  [players.est, players.ouest].forEach(p => { if (p && t.includes(p.substring(0,4))) score2++; });
+  if (score1 > score2) preneur = 't1';
+  else if (score2 > score1) preneur = 't2';
+  else if (t.includes('nord') || t.includes('sud')) preneur = 't1';
+  else if (t.includes('est') || t.includes('ouest')) preneur = 't2';
+
+  // ── 4. CONTRE / SURCONTRE ──
+  let contre = 'none';
+  if (t.includes('surcontre')) contre = 'surcontre';
+  else if (t.includes('contre')) contre = 'contre';
+
+  // ── 5. APPLIQUER ──
+  let applied = [];
+  let missing = [];
+
+  if (value) {
+    setContractVal(value);
+    applied.push(value === 250 ? 'Capot' : value);
+  } else { missing.push('valeur'); }
+
+  if (suitResult) {
+    selectSuit(suitResult.suit, suitResult.key, suitResult.color);
+    applied.push(suitResult.suit);
+  } else { missing.push('couleur'); }
+
+  if (preneur) {
+    selectPreneur(preneur);
+    applied.push(preneur === 't1' ? S.t1.name : S.t2.name);
+  } else { missing.push('équipe'); }
+
+  if (contre !== 'none') {
+    selectContre(contre);
+    applied.push(contre);
+  }
+
+  // ── 6. FEEDBACK ──
+  if (missing.length === 0) {
+    setMicroFeedback('✅ Contrat reconnu : ' + applied.join(' · '), 'ok');
+  } else if (applied.length > 0) {
+    setMicroFeedback('⚠️ Partiel : ' + applied.join(' · ') + ' — manque : ' + missing.join(', '), 'error');
+  } else {
+    setMicroFeedback('❌ Non reconnu — réessayez : valeur, couleur et équipe', 'error');
+  }
+}
+
 setTimeout(() => {
   const splash = eid('splash');
   if(splash) {
