@@ -1008,7 +1008,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2215</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2220</span></div>
       </div>
 
     </div>
@@ -2422,10 +2422,10 @@ function renderHistory() {
       <td style="padding:5px 4px;font-size:13px;font-weight:800;text-align:right;color:${h.pts1>0?'#1a6b3c':'#cc2222'};">${h.pts1}</td>
       <td style="padding:5px 4px;font-size:13px;font-weight:800;text-align:right;color:${h.pts2>0?'#1a6b3c':'#cc2222'};">${h.pts2}</td>
       <td style="padding:5px 4px;text-align:center;">
-        <button onclick="openEdit(${h.manche})" style="background:#e8e4dc;border:1px solid #bbb;border-radius:6px;color:#444;font-size:13px;padding:2px 6px;cursor:pointer;font-family:inherit;">✏️</button>
+        <button onclick="openEdit(${h.manche})" style="background:#e8e4dc;border:1px solid #bbb;border-radius:6px;color:#444;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">✏️</button>
       </td>
       <td style="padding:5px 4px;text-align:center;">
-        <button onclick="deleteManche(${h.manche})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:6px;color:#cc1f1f;font-size:13px;padding:2px 6px;cursor:pointer;font-family:inherit;">🗑</button>
+        <button onclick="deleteManche(${h.manche})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:6px;color:#cc1f1f;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">🗑</button>
       </td>
     </tr>`;
   }).join('');
