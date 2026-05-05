@@ -1008,7 +1008,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260505_2110</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260505_2115</span></div>
       </div>
 
     </div>
@@ -3090,9 +3090,9 @@ function renderEnjeu() {
   // Positions EST/OUEST : détection iPad via window.innerWidth
   const isIPad = Math.min(window.screen.width, window.screen.height) >= 768;
   const isLandscape = window.innerWidth > window.innerHeight;
-  // iPad : pousser EST/OUEST vers les bords (375/25), iPhone : encore plus au bord (382/18)
-  const estX   = isIPad ? 375 : 382;
-  const ouestX = isIPad ? 25  : 18;
+  // iPad : pousser EST/OUEST vers les bords (375/25), iPhone : moins au bord pour ne pas chevaucher le bord doré
+  const estX   = isIPad ? 375 : 368;
+  const ouestX = isIPad ? 25  : 32;
   const positions = {
     nord:  { x:200, y:34,  anchor:'middle' },
     sud:   { x:200, y:366, anchor:'middle' },
