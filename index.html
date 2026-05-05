@@ -1075,7 +1075,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2230</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2240</span></div>
       </div>
 
     </div>
@@ -1460,7 +1460,10 @@
           📋 Copier
         </button>
         <button onclick="exportFeuille('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
-          📤 Partager
+          📤 Texte
+        </button>
+        <button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">
+          📸 Image
         </button>
       </div>
     </div>
@@ -3590,6 +3593,230 @@ function exportFeuille(mode) {
       showToast('Partage non disponible');
     }
   }
+}
+
+function exportFeuilleImage() {
+  if(!S.history.length) { showToast('Aucune manche à exporter'); return; }
+
+  const hist = S.history;
+  const tot1 = hist[hist.length-1].total1;
+  const tot2 = hist[hist.length-1].total2;
+  const winner = tot1 >= 2001 ? S.t1.name : tot2 >= 2001 ? S.t2.name : null;
+  const date = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  // Dimensions
+  const W = 640;
+  const ROW_H = 44;
+  const HEADER_H = 160;
+  const FOOTER_H = winner ? 120 : 80;
+  const TABLE_TOP = HEADER_H + 60;
+  const H = TABLE_TOP + (hist.length + 1) * ROW_H + FOOTER_H + 40;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2; // retina
+  canvas.height = H * 2;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+
+  // ── Fond ──
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1a3318');
+  grad.addColorStop(1, '#2e6b28');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Motif losanges subtil
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  for(let x = -H; x < W+H; x += 14) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x+H, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x-H, H); ctx.stroke();
+  }
+
+  // ── Logo / Titre ──
+  ctx.fillStyle = '#c8960a';
+  ctx.font = 'bold 13px -apple-system, Helvetica';
+  ctx.textAlign = 'center';
+  ctx.fillText('🃏 BELOTE CONTRÉE', W/2, 36);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px -apple-system, Helvetica';
+  ctx.fillText(S.t1.name, W/2, 65);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '13px -apple-system, Helvetica';
+  ctx.fillText('VS', W/2, 84);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px -apple-system, Helvetica';
+  ctx.fillText(S.t2.name, W/2, 108);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '11px -apple-system, Helvetica';
+  ctx.fillText(date, W/2, 130);
+
+  // Ligne séparatrice dorée
+  ctx.strokeStyle = 'rgba(200,150,10,0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(30, 144); ctx.lineTo(W-30, 144); ctx.stroke();
+
+  // ── En-tête tableau ──
+  const cols = { num:36, contrat:130, pren:260, res:340, pts1:440, pts2:540 };
+  const y0 = TABLE_TOP;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  roundRect(ctx, 20, y0-28, W-40, 30, 8);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = 'bold 10px -apple-system, Helvetica';
+  ctx.textAlign = 'left';
+  ctx.fillText('#', cols.num, y0-8);
+  ctx.fillText('CONTRAT', cols.contrat, y0-8);
+  ctx.fillText('PRENEUR', cols.pren, y0-8);
+  ctx.fillText('RÉS.', cols.res, y0-8);
+  ctx.textAlign = 'right';
+  const i1 = initiales(S.t1.name);
+  const i2 = initiales(S.t2.name);
+  ctx.fillText(i1, cols.pts1, y0-8);
+  ctx.fillText(i2, cols.pts2, y0-8);
+
+  // ── Lignes manches ──
+  hist.forEach((h, idx) => {
+    const y = y0 + idx * ROW_H + ROW_H;
+    // Fond alterné
+    if(idx % 2 === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillRect(20, y - ROW_H + 6, W-40, ROW_H);
+    }
+
+    // Numéro
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '12px -apple-system, Helvetica';
+    ctx.textAlign = 'left';
+    ctx.fillText(String(h.manche).padStart(2,'0'), cols.num, y);
+
+    // Contrat
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 13px -apple-system, Helvetica';
+    ctx.fillText(h.contract || '—', cols.contrat, y);
+
+    // Preneur
+    ctx.fillStyle = '#7ab3f0';
+    ctx.font = '12px -apple-system, Helvetica';
+    ctx.fillText(initiales(h.preneurName || ''), cols.pren, y);
+
+    // Résultat badge
+    const isFait = h.chute === false;
+    const isChute = h.chute === true;
+    if(isFait || isChute) {
+      const bx = cols.res - 2;
+      const bw = 46; const bh = 18;
+      ctx.fillStyle = isFait ? '#1a5c1a' : '#5c1a1a';
+      roundRect(ctx, bx, y - 14, bw, bh, 5);
+      ctx.fill();
+      ctx.fillStyle = isFait ? '#7ddd82' : '#ff8080';
+      ctx.font = 'bold 10px -apple-system, Helvetica';
+      ctx.textAlign = 'center';
+      ctx.fillText(isFait ? 'FAIT' : 'CHUTE', bx + bw/2, y - 1);
+      ctx.textAlign = 'left';
+    }
+
+    // Points
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 14px -apple-system, Helvetica';
+    ctx.fillStyle = h.pts1 > h.pts2 ? '#7ddd82' : h.pts1 < h.pts2 ? '#ff8080' : '#ffffff';
+    ctx.fillText(h.pts1, cols.pts1, y);
+    ctx.fillStyle = h.pts2 > h.pts1 ? '#7ddd82' : h.pts2 < h.pts1 ? '#ff8080' : '#ffffff';
+    ctx.fillText(h.pts2, cols.pts2, y);
+    ctx.textAlign = 'left';
+  });
+
+  // ── Ligne total ──
+  const yTot = y0 + hist.length * ROW_H + ROW_H + 8;
+  ctx.strokeStyle = 'rgba(200,150,10,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(20, yTot - 10); ctx.lineTo(W-20, yTot - 10); ctx.stroke();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = 'bold 12px -apple-system, Helvetica';
+  ctx.textAlign = 'left';
+  ctx.fillText('TOTAL', cols.num, yTot + 6);
+  ctx.textAlign = 'right';
+  ctx.font = 'bold 20px -apple-system, Helvetica';
+  ctx.fillStyle = tot1 > tot2 ? '#7ddd82' : tot1 < tot2 ? '#ff8080' : '#ffffff';
+  ctx.fillText(tot1, cols.pts1, yTot + 8);
+  ctx.fillStyle = tot2 > tot1 ? '#7ddd82' : tot2 < tot1 ? '#ff8080' : '#ffffff';
+  ctx.fillText(tot2, cols.pts2, yTot + 8);
+
+  // ── Vainqueur ──
+  if(winner) {
+    const yw = yTot + 50;
+    ctx.fillStyle = 'rgba(200,150,10,0.15)';
+    roundRect(ctx, 20, yw - 24, W-40, 56, 12);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(200,150,10,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#c8960a';
+    ctx.font = 'bold 16px -apple-system, Helvetica';
+    ctx.textAlign = 'center';
+    ctx.fillText('🏆 ' + winner + ' remporte la partie !', W/2, yw);
+    const loser = winner === S.t1.name ? S.t2.name : S.t1.name;
+    const scoreW = winner === S.t1.name ? tot1 : tot2;
+    const scoreL = winner === S.t1.name ? tot2 : tot1;
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '12px -apple-system, Helvetica';
+    ctx.fillText(scoreW + ' pts vs ' + scoreL + ' pts', W/2, yw + 20);
+  }
+
+  // ── Footer ──
+  const yf = H - 20;
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '10px -apple-system, Helvetica';
+  ctx.textAlign = 'center';
+  ctx.fillText('Belote Contrée · ' + date, W/2, yf);
+
+  // ── Partager ──
+  canvas.toBlob(blob => {
+    if(!blob) { showToast('Erreur génération image'); return; }
+    const file = new File([blob], 'belote_score.png', { type: 'image/png' });
+    if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        title: 'Feuille de score — Belote Contrée',
+        text: S.t1.name + ' ' + tot1 + ' — ' + tot2 + ' ' + S.t2.name,
+        files: [file]
+      }).catch(() => {
+        // Fallback : téléchargement
+        downloadCanvas(canvas);
+      });
+    } else {
+      // Fallback : téléchargement direct
+      downloadCanvas(canvas);
+    }
+  }, 'image/png');
+}
+
+function downloadCanvas(canvas) {
+  const a = document.createElement('a');
+  a.download = 'belote_score_' + new Date().toISOString().slice(0,10) + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('📸 Image enregistrée !');
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
 function exportStats(mode) {
