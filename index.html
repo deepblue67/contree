@@ -421,7 +421,7 @@
   }
 
   /* ══ IPAD PAYSAGE (900px+) ══ */
-  @media (min-width: 900px) and (orientation: landscape) {
+  @media (min-width: 900px) and (max-width: 1024px) and (orientation: landscape) {
     html { background: var(--panel) !important; }
     #app { max-width: 100%; width: 100%; min-height: 100dvh; padding-top: 0 !important; }
     .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: auto !important; z-index: 9999 !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; background: var(--panel) !important; }
@@ -782,7 +782,7 @@
   }
 
   /* Paysage iPad */
-  @media (min-width: 900px) and (orientation: landscape) {
+  @media (min-width: 900px) and (max-width: 1024px) and (orientation: landscape) {
     .mec-body {
       flex-direction: row !important;
       align-items: center !important;
@@ -1051,7 +1051,7 @@
       <button onclick="openSettings()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260506_1130</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260506_1135</span></div>
       </div>
 
     </div>
@@ -4085,16 +4085,24 @@ checkAutoSave();
 function fixSetupTableSize() {
   const wrap = eid('setup-table-wrap');
   if (!wrap) return;
+  const isPC = window.innerWidth >= 1025;
   const isLandscape = window.innerWidth > window.innerHeight;
-  const isIPad = Math.min(window.screen.width, window.screen.height) >= 768;
+  const isIPad = !isPC && Math.min(window.screen.width, window.screen.height) >= 768;
+
+  if (isPC) {
+    // PC : taille libre, la colonne fait 420px, le SVG prend 100% de la largeur disponible
+    wrap.style.cssText = 'position:relative;overflow:hidden;';
+    const svg = wrap.querySelector('svg');
+    if (svg) svg.style.cssText = 'width:100%;height:auto;display:block;border-radius:16px;';
+    return;
+  }
   if (!isIPad || !isLandscape) {
     wrap.style.cssText = 'position:relative;overflow:hidden;';
     const svg = wrap.querySelector('svg');
     if (svg) svg.style.cssText = 'width:100%;height:auto;display:block;border-radius:16px;';
     return;
   }
-  // iPad paysage : taille fixe 500px — garantit que la table tient
-  // entre le header (~78px) et la nav (~80px) avec marges
+  // iPad paysage : taille fixe 500px
   const size = 500;
   wrap.style.cssText = 'position:relative;overflow:hidden;width:' + size + 'px;height:' + size + 'px;flex-shrink:0;';
   const svg = wrap.querySelector('svg');
