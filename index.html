@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Belote">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#2e6b28">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Icône écran d'accueil -->
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCI+CiAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMCIgZmlsbD0iIzJkNmIyNiIvPgogIDxwYXR0ZXJuIGlkPSJwMSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgIDxwYXRoIGQ9Ik01LDBMMTAsNUw1LDEwTDAsNVoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPgogIDwvcGF0dGVybj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSJ1cmwoI3AxKSIvPgogIDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSI4NCIgaGVpZ2h0PSI4NCIgcng9IjE0IiBmaWxsPSJub25lIiBzdHJva2U9IiNjOGE4NGEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHJlY3QgeD0iMjIiIHk9IjEyIiB3aWR0aD0iNTYiIGhlaWdodD0iNzYiIHJ4PSI3IiBmaWxsPSIjZjhmNGVjIiBzdHJva2U9IiNjOGE4NGEiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjMwIiB5PSIyOCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzExMSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIj5BPC90ZXh0PgogIDx0ZXh0IHg9IjUwIiB5PSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIzNCIgZmlsbD0iIzExMSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiPiYjOTgyNDs8L3RleHQ+CiAgPHRleHQgeD0iNzAiIHk9IjgyIiBmb250LXNpemU9IjExIiBmaWxsPSIjMTExIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRyYW5zZm9ybT0icm90YXRlKDE4MCA3MCA4MikiPkE8L3RleHQ+Cjwvc3ZnPg==">
 <title>Belote Contrée</title>
@@ -1114,7 +1115,7 @@
       <button onclick="openSettings()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260506_1145</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260506_1200</span></div>
       </div>
 
     </div>
@@ -1250,6 +1251,22 @@
             <button onclick="closeSettings();showMarqueModal();" class="btn btn-outline-dark btn-full" style="font-size:14px;padding:12px;">
               📜 Consulter l'aide à la marque
             </button>
+          </div>
+
+          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:16px;"></div>
+
+          <!-- Section Synchronisation -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🔄 Synchronisation entre appareils</div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Transférez joueurs, historique et réglages vers un autre iPhone ou iPad.</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="showSyncExport()" class="btn btn-outline-dark btn-full" style="font-size:13px;padding:11px;flex:1;">
+                📤 Exporter
+              </button>
+              <button onclick="showSyncImport()" class="btn btn-outline-dark btn-full" style="font-size:13px;padding:11px;flex:1;">
+                📥 Importer
+              </button>
+            </div>
           </div>
 
           <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:16px;"></div>
@@ -1675,6 +1692,11 @@
       </div>
       <div id="marque-modal-content"></div>
     </div>
+  </div>
+
+  <!-- MODAL SYNCHRONISATION -->
+  <div id="sync-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10002;align-items:center;justify-content:center;padding:20px;">
+    <div id="sync-modal-content" style="background:var(--card);border-radius:20px;padding:22px;width:100%;max-width:420px;max-height:85dvh;overflow-y:auto;text-align:center;"></div>
   </div>
 
   <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:20px 20px calc(20px + env(safe-area-inset-bottom, 0px));">
@@ -4864,6 +4886,178 @@ function renderMarqueInEl(el) {
     renderMarque();
     if(savedEl) el.innerHTML = savedEl.innerHTML;
   }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// SYNCHRONISATION EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════
+function showSyncExport() {
+  closeSettings();
+  // Collecter toutes les données
+  const exportData = {
+    version: 1,
+    exported: new Date().toISOString(),
+    players: S.players || [],
+    history: JSON.parse(localStorage.getItem('belote_history') || '[]'),
+    autosave: JSON.parse(localStorage.getItem('belote_autosave') || 'null'),
+    last_config: JSON.parse(localStorage.getItem('belote_last_config') || 'null'),
+    theme: localStorage.getItem('bct_theme') || 'green'
+  };
+  const json = JSON.stringify(exportData);
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  const code = 'BCT1:' + b64;
+
+  // Afficher le modal
+  const modal = eid('sync-modal');
+  const content = eid('sync-modal-content');
+  content.innerHTML = '';
+
+  // Titre + info
+  content.innerHTML += `<div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px;">📤 Exporter mes données</div>`;
+  content.innerHTML += `<div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.5;">${exportData.players.length} joueur(s) · ${exportData.history.length} partie(s) archivée(s)</div>`;
+
+  // Tabs QR / Texte
+  const tabs = document.createElement('div');
+  tabs.style.cssText = 'display:flex;gap:8px;margin-bottom:16px;';
+  let currentTab = 'qr';
+
+  const qrSection = document.createElement('div');
+  qrSection.style.textAlign = 'center';
+  const textSection = document.createElement('div');
+  textSection.style.display = 'none';
+
+  function switchTab(t) {
+    currentTab = t;
+    tabQr.style.background = t==='qr' ? 'var(--green)' : 'rgba(0,0,0,0.07)';
+    tabQr.style.color = t==='qr' ? '#fff' : 'var(--text2)';
+    tabTxt.style.background = t==='text' ? 'var(--green)' : 'rgba(0,0,0,0.07)';
+    tabTxt.style.color = t==='text' ? '#fff' : 'var(--text2)';
+    qrSection.style.display = t==='qr' ? 'block' : 'none';
+    textSection.style.display = t==='text' ? 'block' : 'none';
+  }
+
+  const tabQr = document.createElement('button');
+  tabQr.textContent = '📷 QR Code';
+  tabQr.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;background:var(--green);color:#fff;';
+  tabQr.onclick = () => switchTab('qr');
+  const tabTxt = document.createElement('button');
+  tabTxt.textContent = '📋 Texte';
+  tabTxt.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;background:rgba(0,0,0,0.07);color:var(--text2);';
+  tabTxt.onclick = () => switchTab('text');
+  tabs.appendChild(tabQr); tabs.appendChild(tabTxt);
+  content.appendChild(tabs);
+
+  // Section QR
+  if(code.length > 2900) {
+    qrSection.innerHTML = '<div style="font-size:13px;color:#c03030;padding:16px;text-align:center;">⚠️ Données trop volumineuses pour un QR Code (' + Math.round(code.length/1024*10)/10 + ' Ko).<br>Utilisez le mode Texte.</div>';
+  } else {
+    qrSection.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Scannez avec l\'appareil photo de l\'autre appareil</div>';
+    const qrDiv = document.createElement('div');
+    qrDiv.style.cssText = 'display:inline-block;background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;';
+    qrSection.appendChild(qrDiv);
+    setTimeout(() => {
+      try {
+        new QRCode(qrDiv, { text:code, width:220, height:220, colorDark:'#1a3318', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
+      } catch(e) {
+        qrDiv.innerHTML = '<div style="padding:20px;font-size:13px;color:#c03030">Erreur QR Code</div>';
+      }
+    }, 100);
+  }
+  content.appendChild(qrSection);
+
+  // Section Texte
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:12px;color:var(--text2);margin-bottom:10px;text-align:center;';
+  hint.textContent = 'Copiez ce code et envoyez-le à l\'autre appareil';
+  textSection.appendChild(hint);
+  const ta = document.createElement('textarea');
+  ta.value = code; ta.readOnly = true;
+  ta.style.cssText = 'width:100%;height:80px;font-size:9px;font-family:monospace;resize:none;margin-bottom:10px;border:1px solid var(--border-light);border-radius:8px;padding:8px;word-break:break-all;background:#f8f6f0;';
+  textSection.appendChild(ta);
+  const copyBtn = document.createElement('button');
+  copyBtn.textContent = '📋 Copier le code';
+  copyBtn.className = 'btn btn-green btn-full';
+  copyBtn.style.marginBottom = '8px';
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(code).then(() => { copyBtn.textContent = '✓ Copié !'; setTimeout(()=>copyBtn.textContent='📋 Copier le code',2000); })
+    .catch(() => { ta.select(); document.execCommand('copy'); copyBtn.textContent = '✓ Copié !'; setTimeout(()=>copyBtn.textContent='📋 Copier le code',2000); });
+  };
+  textSection.appendChild(copyBtn);
+  if(navigator.share) {
+    const shareBtn = document.createElement('button');
+    shareBtn.textContent = '🔗 Partager via…';
+    shareBtn.className = 'btn btn-outline-dark btn-full';
+    shareBtn.onclick = () => navigator.share({ title:'Belote Contrée — Export', text:code });
+    textSection.appendChild(shareBtn);
+  }
+  content.appendChild(textSection);
+
+  // Bouton fermer
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Fermer';
+  closeBtn.className = 'btn btn-outline-dark btn-full';
+  closeBtn.style.marginTop = '14px';
+  closeBtn.onclick = () => modal.style.display = 'none';
+  content.appendChild(closeBtn);
+
+  modal.style.display = 'flex';
+}
+
+function showSyncImport() {
+  closeSettings();
+  const modal = eid('sync-modal');
+  const content = eid('sync-modal-content');
+  content.innerHTML = '';
+
+  content.innerHTML += `<div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px;">📥 Importer des données</div>`;
+  content.innerHTML += `<div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.5;">⚠️ Cela remplacera joueurs, historique et réglages.</div>`;
+
+  const ta = document.createElement('textarea');
+  ta.placeholder = 'Collez le code BCT1:... ici';
+  ta.style.cssText = 'width:100%;height:100px;font-size:11px;font-family:monospace;resize:none;margin-bottom:12px;border:1.5px solid var(--border-light);border-radius:8px;padding:8px;word-break:break-all;';
+  content.appendChild(ta);
+
+  const errDiv = document.createElement('div');
+  errDiv.style.cssText = 'font-size:13px;color:#c03030;margin-bottom:10px;min-height:18px;text-align:center;';
+  content.appendChild(errDiv);
+
+  const importBtn = document.createElement('button');
+  importBtn.textContent = '✅ Importer';
+  importBtn.className = 'btn btn-green btn-full';
+  importBtn.style.marginBottom = '8px';
+  importBtn.onclick = () => {
+    const raw = ta.value.trim();
+    if(!raw.startsWith('BCT1:')) { errDiv.textContent = 'Code invalide — doit commencer par BCT1:'; return; }
+    try {
+      const json = decodeURIComponent(escape(atob(raw.slice(5))));
+      const data = JSON.parse(json);
+      if(!data.version || !Array.isArray(data.players)) { errDiv.textContent = 'Format invalide.'; return; }
+      const msg = `Importer ${data.players.length} joueur(s) et ${(data.history||[]).length} partie(s) ? Vos données actuelles seront remplacées.`;
+      if(!confirm(msg)) return;
+      // Appliquer les données
+      S.players = data.players || [];
+      savePlayers();
+      if(data.history) localStorage.setItem('belote_history', JSON.stringify(data.history));
+      if(data.autosave) localStorage.setItem('belote_autosave', JSON.stringify(data.autosave));
+      if(data.last_config) localStorage.setItem('belote_last_config', JSON.stringify(data.last_config));
+      if(data.theme) { localStorage.setItem('bct_theme', data.theme); applyTheme(data.theme); }
+      refreshSelects();
+      modal.style.display = 'none';
+      showToast('✅ Import réussi !');
+    } catch(e) {
+      errDiv.textContent = 'Erreur de décodage : ' + e.message;
+    }
+  };
+  content.appendChild(importBtn);
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Annuler';
+  cancelBtn.className = 'btn btn-outline-dark btn-full';
+  cancelBtn.onclick = () => modal.style.display = 'none';
+  content.appendChild(cancelBtn);
+
+  modal.style.display = 'flex';
 }
 
 function openSettings() {
