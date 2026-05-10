@@ -1227,7 +1227,7 @@
       <div id="settings-modal" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:flex-start;overflow-y:auto;padding:16px;">
         <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:440px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2140</span></div>
+            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2150</span></div>
             <button onclick="closeSettings()" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:34px;height:34px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
           </div>
 
@@ -1580,6 +1580,17 @@
       </div>
     </div>
 
+    <!-- TAB: PARTIES (Résultat + Historique fusionnés) -->
+    <div id="tab-parties" class="body" style="display:none;">
+      <!-- Sous-onglets -->
+      <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
+        <button id="sub-tab-saisie" onclick="showSubTab('saisie')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🏆 Résultat</button>
+        <button id="sub-tab-history" onclick="showSubTab('history')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">📋 Historique</button>
+        <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 Score</button>
+      </div>
+      <div id="sub-content-parties"></div>
+    </div>
+
     <!-- TAB: STATS -->
     <div id="tab-stats" class="body" style="display:none;">
 
@@ -1752,24 +1763,21 @@
   </div>
 
   <!-- BOTTOM NAV — directement dans #app, fixed bottom -->
-  <div class="bottom-nav nav6" id="bottom-nav">
+  <div class="bottom-nav nav5" id="bottom-nav">
     <button class="nav-item active" id="nav-table" onclick="showTab('enjeu')">
       <span class="ni-icon">🎯</span>Table
     </button>
     <button class="nav-item" id="nav-contrat" onclick="showTab('contrat')">
       <span class="ni-icon">🃏</span>Contrat
     </button>
-    <button class="nav-item" id="nav-score" onclick="if(this.dataset.blocked)return;showTab('saisie');updateSaisieForm();">
-      <span class="ni-icon">🏆</span>Résultat
-    </button>
-    <button class="nav-item" id="nav-history" onclick="showTab('history')">
-      <span class="ni-icon">📋</span>Historique
+    <button class="nav-item" id="nav-parties" onclick="showTab('parties')">
+      <span class="ni-icon">📋</span>Parties
     </button>
     <button class="nav-item" id="nav-stats" onclick="showTab('stats')">
       <span class="ni-icon">📈</span>Stats
     </button>
     <button class="nav-item" id="nav-marque" onclick="showTab('feuille')">
-      <span class="ni-icon">📋</span>Score
+      <span class="ni-icon">🗒</span>Score
     </button>
   </div>
 
@@ -1932,16 +1940,11 @@ function updatePulseButtons() {
   const c = S.contract;
   const btnContrat = eid('btn-action-contrat');
   const btnSaisie  = eid('btn-action-saisie');
-  const navScore   = eid('nav-score');
   if(btnContrat) btnContrat.classList.toggle('btn-pulse', !c);
   if(btnSaisie) {
     btnSaisie.classList.toggle('btn-pulse', !!c);
     btnSaisie.style.opacity = c ? '1' : '0.35';
     btnSaisie.disabled = !c;
-  }
-  if(navScore) {
-    navScore.style.opacity = c ? '1' : '0.35';
-    navScore.dataset.blocked = c ? '' : '1';
   }
 }
 
@@ -1956,13 +1959,17 @@ function initGameUI() {
 }
 
 function showTab(tab) {
-  // Bloquer l'accès à la saisie sans contrat
-  if(tab==='saisie' && !S.contract) {
-    showToast('⚠️ Saisissez d\'abord un contrat');
+  // Rediriger saisie/history/feuille vers l'onglet Parties
+  if(tab==='saisie' || tab==='history' || tab==='feuille') {
+    // Accès direct : aller sur parties avec le bon sous-onglet
+    // (saisie sans contrat → history)
+    const sub = (tab==='saisie' && !S.contract) ? 'history' : tab;
+    showTab('parties');
+    setTimeout(() => showSubTab(sub), 10);
     return;
   }
   haptic('light');
-  ['contrat','saisie','history','stats','marque','feuille','enjeu'].forEach(t=>{
+  ['contrat','saisie','history','stats','marque','feuille','enjeu','parties'].forEach(t=>{
     const el = document.getElementById('tab-'+t);
     if(el) el.style.display='none';
   });
@@ -1974,18 +1981,22 @@ function showTab(tab) {
   const isOverlay = ['contrat','saisie','history','stats','marque','feuille'].includes(tab);
   if(enjeu) enjeu.classList.toggle('overlay-open', isOverlay);
 
-  ['table','score','contrat','history','stats','marque'].forEach(t=>{
+  ['table','contrat','parties','stats','marque'].forEach(t=>{
     const nav = document.getElementById('nav-'+t);
     if(nav) nav.classList.toggle('active',
       (t==='table' && tab==='enjeu') ||
-      (t==='score' && tab==='saisie') ||
       (t==='contrat' && tab==='contrat') ||
-      (t==='history' && tab==='history') ||
+      (t==='parties' && tab==='parties') ||
       (t==='stats' && tab==='stats') ||
-      (t==='marque' && (tab==='marque' || tab==='feuille'))
+      (t==='marque' && tab==='feuille')
     );
   });
   if(tab==='enjeu') { renderEnjeu(); updatePulseButtons(); }
+  if(tab==='parties') {
+    // Choisir le bon sous-onglet par défaut
+    const defaultSub = (!S.contract) ? 'history' : 'saisie';
+    showSubTab(defaultSub);
+  }
   if(tab==='contrat') updateContractForm();
   if(tab==='saisie') updateSaisieForm();
   if(tab==='history') { renderHistory(); renderPastHistory(); }
@@ -4211,7 +4222,7 @@ refreshTeamPreview();
 //  SWIPE NAVIGATION
 // ═══════════════════════════════════════════════════════════
 (function() {
-  const TAB_ORDER = ['enjeu','contrat','saisie','history','stats','feuille'];
+  const TAB_ORDER = ['enjeu','contrat','parties','stats','feuille'];
   let touchStartX = 0, touchStartY = 0;
 
   document.addEventListener('touchstart', e => {
@@ -4315,6 +4326,77 @@ requestAnimationFrame(() => requestAnimationFrame(() => { fixSetupTableSize(); s
 loadTheme();
 
 // Splash screen — disparaît après 1.5s
+
+
+// ═══════════════════════════════════════════════════════════
+// SOUS-ONGLETS PARTIES
+// ═══════════════════════════════════════════════════════════
+let currentSubTab = 'saisie';
+
+function showSubTab(sub) {
+  // Bloquer saisie sans contrat
+  if(sub==='saisie' && !S.contract) {
+    sub = 'history';
+  }
+  currentSubTab = sub;
+  const container = eid('sub-content-parties');
+  if(!container) return;
+
+  // Mettre à jour les boutons sous-onglets
+  ['saisie','history','feuille'].forEach(s => {
+    const btn = eid('sub-tab-'+s);
+    if(!btn) return;
+    const active = s===sub;
+    btn.style.background = active ? 'var(--green)' : 'transparent';
+    btn.style.color = active ? '#fff' : 'rgba(255,255,255,0.6)';
+    btn.style.fontWeight = active ? '800' : '700';
+  });
+
+  // Bloquer visuellement le sous-onglet saisie si pas de contrat
+  const btnSaisie = eid('sub-tab-saisie');
+  if(btnSaisie && !S.contract) {
+    btnSaisie.style.opacity = '0.4';
+  } else if(btnSaisie) {
+    btnSaisie.style.opacity = '1';
+  }
+
+  // Rendre le contenu
+  if(sub==='saisie') {
+    // Copier le contenu de tab-saisie dans le sous-contenu
+    const tabSaisie = eid('tab-saisie');
+    if(tabSaisie) {
+      container.innerHTML = tabSaisie.innerHTML;
+      updateSaisieForm();
+      // Rebind les events via innerHTML — utiliser cloneNode + remplacement
+      container.innerHTML = '';
+      const clone = tabSaisie.cloneNode(true);
+      clone.style.display = 'block';
+      clone.id = 'tab-saisie-clone';
+      container.appendChild(clone);
+      updateSaisieForm();
+    }
+  } else if(sub==='history') {
+    container.innerHTML = '';
+    const tabHist = eid('tab-history');
+    if(tabHist) {
+      const clone = tabHist.cloneNode(true);
+      clone.style.display = 'block';
+      clone.id = 'tab-history-clone';
+      container.appendChild(clone);
+      renderHistory();
+    }
+  } else if(sub==='feuille') {
+    container.innerHTML = '';
+    const tabFeuille = eid('tab-feuille');
+    if(tabFeuille) {
+      const clone = tabFeuille.cloneNode(true);
+      clone.style.display = 'block';
+      clone.id = 'tab-feuille-clone';
+      container.appendChild(clone);
+      renderFeuille();
+    }
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // RECONNAISSANCE VOCALE — CONTRAT
@@ -4542,6 +4624,76 @@ function parseVoiceContrat(text) {
 }
 
 
+
+
+// ═══════════════════════════════════════════════════════════
+// SOUS-ONGLETS PARTIES
+// ═══════════════════════════════════════════════════════════
+
+function showSubTab(sub) {
+  // Bloquer saisie sans contrat
+  if(sub==='saisie' && !S.contract) {
+    sub = 'history';
+  }
+  currentSubTab = sub;
+  const container = eid('sub-content-parties');
+  if(!container) return;
+
+  // Mettre à jour les boutons sous-onglets
+  ['saisie','history','feuille'].forEach(s => {
+    const btn = eid('sub-tab-'+s);
+    if(!btn) return;
+    const active = s===sub;
+    btn.style.background = active ? 'var(--green)' : 'transparent';
+    btn.style.color = active ? '#fff' : 'rgba(255,255,255,0.6)';
+    btn.style.fontWeight = active ? '800' : '700';
+  });
+
+  // Bloquer visuellement le sous-onglet saisie si pas de contrat
+  const btnSaisie = eid('sub-tab-saisie');
+  if(btnSaisie && !S.contract) {
+    btnSaisie.style.opacity = '0.4';
+  } else if(btnSaisie) {
+    btnSaisie.style.opacity = '1';
+  }
+
+  // Rendre le contenu
+  if(sub==='saisie') {
+    // Copier le contenu de tab-saisie dans le sous-contenu
+    const tabSaisie = eid('tab-saisie');
+    if(tabSaisie) {
+      container.innerHTML = tabSaisie.innerHTML;
+      updateSaisieForm();
+      // Rebind les events via innerHTML — utiliser cloneNode + remplacement
+      container.innerHTML = '';
+      const clone = tabSaisie.cloneNode(true);
+      clone.style.display = 'block';
+      clone.id = 'tab-saisie-clone';
+      container.appendChild(clone);
+      updateSaisieForm();
+    }
+  } else if(sub==='history') {
+    container.innerHTML = '';
+    const tabHist = eid('tab-history');
+    if(tabHist) {
+      const clone = tabHist.cloneNode(true);
+      clone.style.display = 'block';
+      clone.id = 'tab-history-clone';
+      container.appendChild(clone);
+      renderHistory();
+    }
+  } else if(sub==='feuille') {
+    container.innerHTML = '';
+    const tabFeuille = eid('tab-feuille');
+    if(tabFeuille) {
+      const clone = tabFeuille.cloneNode(true);
+      clone.style.display = 'block';
+      clone.id = 'tab-feuille-clone';
+      container.appendChild(clone);
+      renderFeuille();
+    }
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // RECONNAISSANCE VOCALE — CONFIGURATION
