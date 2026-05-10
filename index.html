@@ -1108,6 +1108,26 @@
     .mec-team-name { font-size: 15px !important; }
     .mec-need { display: none !important; }
   }
+  /* ── iPhone portrait : tableau historique ── */
+  @media (max-width: 480px) and (orientation: portrait) {
+    #history-content table td, #history-content table th {
+      padding: 5px 2px !important;
+      font-size: 11px !important;
+    }
+    #history-content table td:nth-child(5),
+    #history-content table td:nth-child(6) {
+      font-size: 12px !important;
+    }
+    #history-content table td:nth-child(7),
+    #history-content table td:nth-child(8) {
+      padding: 5px 1px !important;
+    }
+    #history-content table td:nth-child(7) button,
+    #history-content table td:nth-child(8) button {
+      font-size: 9px !important;
+      padding: 1px 2px !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -1207,7 +1227,7 @@
       <div id="settings-modal" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:flex-start;overflow-y:auto;padding:16px;">
         <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:440px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2135</span></div>
+            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2140</span></div>
             <button onclick="closeSettings()" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:34px;height:34px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
           </div>
 
