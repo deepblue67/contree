@@ -1150,6 +1150,17 @@
     <div class="header" style="padding:12px 16px;justify-content:center;position:relative;">
       <!-- Icône groupe joueurs haut-gauche — clignotant -->
       <button onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
+      <!-- Tooltip onboarding -->
+      <div id="onboarding-tooltip" style="display:none;position:absolute;left:14px;top:62px;z-index:500;max-width:220px;">
+        <div style="background:#fff;color:#1a3318;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.35);">
+          👆 Bienvenue !<br>Commencez par ajouter vos joueurs ici.
+          <div style="margin-top:8px;">
+            <button onclick="dismissOnboarding()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">OK, compris !</button>
+          </div>
+        </div>
+        <!-- Petite flèche vers le haut -->
+        <div style="position:absolute;top:-7px;left:18px;width:14px;height:14px;background:#fff;transform:rotate(45deg);border-radius:2px;box-shadow:-2px -2px 4px rgba(0,0,0,0.1);"></div>
+      </div>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
         <div class="sub">Configuration de la partie</div>
@@ -1590,7 +1601,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260510_2215</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260510_2220</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4349,6 +4360,32 @@ loadTheme();
 // Splash screen — disparaît après 1.5s
 
 
+
+// ═══════════════════════════════════════════════════════════
+// ONBOARDING — Premier lancement
+// ═══════════════════════════════════════════════════════════
+function checkOnboarding() {
+  try {
+    const done = localStorage.getItem('bct_onboarded');
+    if(!done && (!S.players || S.players.length === 0)) {
+      setTimeout(() => {
+        const tt = eid('onboarding-tooltip');
+        if(tt) tt.style.display = 'block';
+      }, 1200);
+    }
+  } catch(e) {}
+}
+
+function dismissOnboarding() {
+  const tt = eid('onboarding-tooltip');
+  if(tt) {
+    tt.style.opacity = '0';
+    tt.style.transition = 'opacity .3s';
+    setTimeout(() => tt.style.display = 'none', 300);
+  }
+  try { localStorage.setItem('bct_onboarded', '1'); } catch(e) {}
+}
+
 // ═══════════════════════════════════════════════════════════
 // SOUS-ONGLETS PARTIES
 // ═══════════════════════════════════════════════════════════
@@ -4624,6 +4661,32 @@ function parseVoiceContrat(text) {
 
 
 
+
+
+// ═══════════════════════════════════════════════════════════
+// ONBOARDING — Premier lancement
+// ═══════════════════════════════════════════════════════════
+function checkOnboarding() {
+  try {
+    const done = localStorage.getItem('bct_onboarded');
+    if(!done && (!S.players || S.players.length === 0)) {
+      setTimeout(() => {
+        const tt = eid('onboarding-tooltip');
+        if(tt) tt.style.display = 'block';
+      }, 1200);
+    }
+  } catch(e) {}
+}
+
+function dismissOnboarding() {
+  const tt = eid('onboarding-tooltip');
+  if(tt) {
+    tt.style.opacity = '0';
+    tt.style.transition = 'opacity .3s';
+    setTimeout(() => tt.style.display = 'none', 300);
+  }
+  try { localStorage.setItem('bct_onboarded', '1'); } catch(e) {}
+}
 
 // ═══════════════════════════════════════════════════════════
 // SOUS-ONGLETS PARTIES
@@ -5195,6 +5258,7 @@ function showSyncImport() {
 }
 
 function showSettingsScreen() {
+  dismissOnboarding();
   renderSettingsPlayers();
   try {
     const cur = localStorage.getItem('bct_theme') || 'green';
@@ -5278,6 +5342,7 @@ setTimeout(() => {
     splash.classList.add('hide');
     setTimeout(() => splash.remove(), 500);
   }
+  checkOnboarding();
 }, 1500);
 </script>
 </body>
