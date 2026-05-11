@@ -1264,6 +1264,29 @@
         </div>
       </div>
 
+      <!-- Mode de fin de partie -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Mode de fin de partie</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button id="mode-btn-points" onclick="setGameMode('points')" style="background:var(--green);border:2px solid rgba(255,255,255,0.4);border-radius:14px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="font-size:20px;">🏆</span>
+            <span style="font-size:13px;font-weight:800;color:#fff;">Points</span>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
+              <input id="inp-winning-pts" type="number" min="501" max="9999" value="2001" onclick="event.stopPropagation()" style="width:60px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.15);color:#fff;padding:2px 4px;font-family:inherit;">
+              <span style="font-size:11px;color:rgba(255,255,255,0.7);">pts</span>
+            </div>
+          </button>
+          <button id="mode-btn-manches" onclick="setGameMode('manches')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.15);border-radius:14px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="font-size:20px;">🔢</span>
+            <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);">Manches</span>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
+              <input id="inp-winning-manches" type="number" min="1" max="99" value="10" onclick="event.stopPropagation()" style="width:50px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);padding:2px 4px;font-family:inherit;">
+              <span style="font-size:11px;color:rgba(255,255,255,0.4);">manches</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <button id="setup-start-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);startGame();" style="font-size:16px;padding:16px;">
         Commencer la partie ▶
       </button>
@@ -1592,7 +1615,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2150</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2200</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1835,6 +1858,9 @@ let S = {
   score: { t1:0, t2:0 },
   history: [],
   manche: 1,
+  gameMode: 'points',
+  winningPts: 2001,
+  winningManches: 10,
   // rotation order: sens inverse des aiguilles d'une montre (N → O → S → E)
   // Le prochain donneur est à la DROITE = suivant dans cet ordre
   // Premier joueur = à droite du donneur = suivant dans cet ordre
@@ -1926,6 +1952,32 @@ function refreshTeamPreview() {
   refreshDealerSelect();
 }
 
+function setGameMode(mode) {
+  const btnPts = eid('mode-btn-points');
+  const btnMan = eid('mode-btn-manches');
+  const inpPts = eid('inp-winning-pts');
+  const inpMan = eid('inp-winning-manches');
+  if(btnPts) {
+    btnPts.dataset.active = mode==='points' ? '1' : '0';
+    btnPts.style.background = mode==='points' ? 'var(--green)' : 'rgba(255,255,255,0.1)';
+    btnPts.style.borderColor = mode==='points' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
+    const lbl = btnPts.querySelectorAll('span')[1];
+    if(lbl) { lbl.style.color='#fff'; lbl.style.fontWeight=mode==='points'?'800':'700'; lbl.style.opacity=mode==='points'?'1':'0.6'; }
+  }
+  if(btnMan) {
+    btnMan.dataset.active = mode==='manches' ? '1' : '0';
+    btnMan.style.background = mode==='manches' ? 'var(--green)' : 'rgba(255,255,255,0.1)';
+    btnMan.style.borderColor = mode==='manches' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
+    const lbl = btnMan.querySelectorAll('span')[1];
+    if(lbl) { lbl.style.color='#fff'; lbl.style.fontWeight=mode==='manches'?'800':'700'; lbl.style.opacity=mode==='manches'?'1':'0.6'; }
+  }
+  if(inpPts) { inpPts.style.background=mode==='points'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)'; inpPts.style.color=mode==='points'?'#fff':'rgba(255,255,255,0.3)'; }
+  if(inpMan) { inpMan.style.background=mode==='manches'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)'; inpMan.style.color=mode==='manches'?'#fff':'rgba(255,255,255,0.3)'; }
+}
+
+function getWinningScore() { return S.gameMode==='points' ? S.winningPts : null; }
+function getWinningManches() { return S.gameMode==='manches' ? S.winningManches : null; }
+
 function startGame() {
   const n=v('sel-nord'), s=v('sel-sud'), e=v('sel-est'), o=v('sel-ouest');
   if(!n||!s||!e||!o) {
@@ -1943,6 +1995,10 @@ function startGame() {
   S.history = [];
   S.manche = 1;
   S.contract = null;
+  // Lire le mode de fin de partie
+  S.gameMode = (eid('mode-btn-manches') && eid('mode-btn-manches').dataset.active==='1') ? 'manches' : 'points';
+  S.winningPts = parseInt((eid('inp-winning-pts')||{}).value) || 2001;
+  S.winningManches = parseInt((eid('inp-winning-manches')||{}).value) || 10;
   saveLastConfig(); // mémoriser la configuration
   const fd = v('sel-first-dealer');
   if(fd==='random') {
@@ -2688,7 +2744,10 @@ function validateScore() {
   pendingScore = null;
 
   // Check winner
-  const w1 = S.score.t1>=2001, w2=S.score.t2>=2001;
+  const winPts = S.gameMode==='manches' ? null : (S.winningPts||2001);
+  const winMan = S.gameMode==='manches' ? (S.winningManches||10) : null;
+  const w1 = winPts ? S.score.t1>=winPts : (S.manche-1)>=winMan;
+  const w2 = winPts ? S.score.t2>=winPts : (S.manche-1)>=winMan;
   if(w1||w2) {
     showWinner(w1&&w2?(S.score.t1>S.score.t2?'t1':'t2'):(w1?'t1':'t2'));
     return;
@@ -3248,10 +3307,11 @@ function renderStatsChart() {
     ctx.fillText(Math.round(r*maxVal), pad.l-4, y+3);
   });
 
-  // Ligne 2001
-  const y2001 = yP(Math.min(2001, maxVal));
+  // Ligne objectif
+  const winTarget = S.gameMode==='manches' ? null : (S.winningPts||2001);
+  const y2001 = winTarget ? yP(Math.min(winTarget, maxVal)) : null;
   ctx.strokeStyle='rgba(200,168,74,0.6)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(pad.l,y2001); ctx.lineTo(W-pad.r,y2001); ctx.stroke();
+  if(y2001 !== null) { ctx.beginPath(); ctx.moveTo(pad.l,y2001); ctx.lineTo(W-pad.r,y2001); ctx.stroke(); }
   ctx.setLineDash([]);
 
   // Courbe T1
@@ -3438,8 +3498,16 @@ function renderEnjeu() {
   eid('ej-stn2').innerHTML = formatTeamName(S.t2.name);
   eid('ej-sts1').textContent = s1;
   eid('ej-sts2').textContent = s2;
-  eid('ej-stk1').textContent = s1<2001?'manque '+(2001-s1):'';
-  eid('ej-stk2').textContent = s2<2001?'manque '+(2001-s2):'';
+  if(S.gameMode==='manches') {
+    const wm = S.winningManches||10;
+    const cur = S.manche-1;
+    eid('ej-stk1').textContent = cur<wm ? (wm-cur)+' manche'+(wm-cur>1?'s':'')+' restante'+(wm-cur>1?'s':'') : '';
+    eid('ej-stk2').textContent = '';
+  } else {
+    const wp = S.winningPts||2001;
+    eid('ej-stk1').textContent = s1<wp?'manque '+(wp-s1):'';
+    eid('ej-stk2').textContent = s2<wp?'manque '+(wp-s2):'';
+  }
   eid('ej-st1').className = 'score-team'+(s1>s2?' leading':'');
   eid('ej-st2').className = 'score-team'+(s2>s1?' leading':'');
   updateDealerInfo();
