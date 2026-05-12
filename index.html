@@ -1264,32 +1264,10 @@
         </div>
       </div>
 
-      <!-- Mode de fin de partie -->
-      <div style="margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Mode de fin de partie</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <button id="mode-btn-points" onclick="setGameMode('points')" style="background:var(--green);border:2px solid rgba(255,255,255,0.4);border-radius:14px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;">
-            <span style="font-size:20px;">🏆</span>
-            <span style="font-size:13px;font-weight:800;color:#fff;">Points</span>
-            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
-              <input id="inp-winning-pts" type="number" min="501" max="9999" value="2001" onclick="event.stopPropagation()" style="width:60px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.15);color:#fff;padding:2px 4px;font-family:inherit;">
-              <span style="font-size:11px;color:rgba(255,255,255,0.7);">pts</span>
-            </div>
-          </button>
-          <button id="mode-btn-manches" onclick="setGameMode('manches')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.15);border-radius:14px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;">
-            <span style="font-size:20px;">🔢</span>
-            <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);">Manches</span>
-            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
-              <input id="inp-winning-manches" type="number" min="1" max="99" value="10" onclick="event.stopPropagation()" style="width:50px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);padding:2px 4px;font-family:inherit;">
-              <span style="font-size:11px;color:rgba(255,255,255,0.4);">manches</span>
-            </div>
-          </button>
-        </div>
-      </div>
-
       <button id="setup-start-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);startGame();" style="font-size:16px;padding:16px;">
         Commencer la partie ▶
       </button>
+      <div id="setup-mode-label" style="text-align:center;font-size:12px;color:rgba(255,255,255,0.55);margin-top:6px;font-style:italic;"></div>
     </div>
   </div>
 
@@ -1615,7 +1593,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2200</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2220</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1639,6 +1617,28 @@
             </div>
             <div id="settings-players-list" style="border-radius:10px;border:1px solid rgba(0,0,0,0.08);overflow:hidden;"></div>
           </div>
+        </div>
+
+
+        <!-- ── Mode de fin de partie ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">🏁 Mode de fin de partie</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+          <button id="mode-btn-points" onclick="setGameMode('points')" style="background:var(--green);border:2px solid rgba(255,255,255,0.4);border-radius:14px;padding:14px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;">
+            <span style="font-size:22px;">🏆</span>
+            <span style="font-size:13px;font-weight:800;color:#fff;">Points</span>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;" onclick="event.stopPropagation()">
+              <input id="inp-winning-pts" type="number" min="501" max="9999" value="2001" onclick="event.stopPropagation()" onchange="updateSetupModeLabel()" style="width:62px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.15);color:#fff;padding:3px 4px;font-family:inherit;">
+              <span style="font-size:11px;color:rgba(255,255,255,0.8);">pts</span>
+            </div>
+          </button>
+          <button id="mode-btn-manches" onclick="setGameMode('manches')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.15);border-radius:14px;padding:14px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;">
+            <span style="font-size:22px;">🔢</span>
+            <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.6);">Manches</span>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;" onclick="event.stopPropagation()">
+              <input id="inp-winning-manches" type="number" min="1" max="99" value="10" onclick="event.stopPropagation()" onchange="updateSetupModeLabel()" style="width:50px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);padding:3px 4px;font-family:inherit;">
+              <span style="font-size:11px;color:rgba(255,255,255,0.4);">manches</span>
+            </div>
+          </button>
         </div>
 
         <!-- ── Thème ── -->
@@ -1973,6 +1973,20 @@ function setGameMode(mode) {
   }
   if(inpPts) { inpPts.style.background=mode==='points'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)'; inpPts.style.color=mode==='points'?'#fff':'rgba(255,255,255,0.3)'; }
   if(inpMan) { inpMan.style.background=mode==='manches'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)'; inpMan.style.color=mode==='manches'?'#fff':'rgba(255,255,255,0.3)'; }
+  updateSetupModeLabel();
+}
+
+function updateSetupModeLabel() {
+  const lbl = eid('setup-mode-label');
+  if(!lbl) return;
+  const isManches = eid('mode-btn-manches') && eid('mode-btn-manches').dataset.active==='1';
+  if(isManches) {
+    const m = parseInt((eid('inp-winning-manches')||{}).value)||10;
+    lbl.textContent = 'La partie se joue en '+m+' manche'+(m>1?'s':'');
+  } else {
+    const p = parseInt((eid('inp-winning-pts')||{}).value)||2001;
+    lbl.textContent = 'La partie se joue en '+p+' points';
+  }
 }
 
 function getWinningScore() { return S.gameMode==='points' ? S.winningPts : null; }
@@ -2060,6 +2074,16 @@ function initGameUI() {
 }
 
 function showTab(tab) {
+  // Bloquer saisie/contrat si pas de partie en cours (screen-setup actif)
+  const onSetup = eid('screen-setup') && eid('screen-setup').classList.contains('active');
+  if(onSetup && !['parties','stats'].includes(tab)) {
+    showToast('⚠️ Configurez d\'abord une partie');
+    return;
+  }
+  // Si on est sur setup et qu'on veut Parties ou Stats → basculer vers game
+  if(onSetup && ['parties','stats'].includes(tab)) {
+    showScreen('game');
+  }
   // Bloquer saisie sans contrat
   if(tab==='saisie' && !S.contract) {
     showToast('⚠️ Saisissez d\'abord un contrat');
@@ -2094,7 +2118,11 @@ function showTab(tab) {
       (t==='stats' && tab==='stats')
     );
   });
-  if(tab==='enjeu') { renderEnjeu(); updatePulseButtons(); }
+  if(tab==='enjeu') {
+    // Si pas de partie démarrée, retourner sur setup
+    if(!S.t1.name) { showScreen('setup'); return; }
+    renderEnjeu(); updatePulseButtons();
+  }
   if(tab==='parties') {
     showSubTab('feuille');
   }
@@ -2774,7 +2802,6 @@ function showWinner(team) {
 }
 
 function newGame() {
-  if(S.history.length) savePastGame();
   clearAutoSave();
   S.score={t1:0,t2:0};
   S.history=[];
@@ -3061,20 +3088,57 @@ function renderPastHistory() {
       <!-- Contenu du jour — pliable -->
       <div id="day-wrap-${sanitized}" style="margin-top:6px;display:none;">
         ${parties.map(p => `
-          <div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:6px;border:1px solid #e0ddd6;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-            <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
+          <div style="background:#fff;border-radius:12px;margin-bottom:6px;border:1px solid #e0ddd6;box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden;">
+            <!-- En-tête cliquable -->
+            <div onclick="toggleGameDetail(${p.id})" style="display:flex;justify-content:space-between;align-items:start;gap:8px;padding:12px 14px;cursor:pointer;">
               <div style="flex:1;">
                 <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🏆 ${p.winner}</div>
                 <div style="font-size:12px;color:var(--text2);margin-bottom:2px;">${p.t1} <span style="font-weight:700;color:var(--text);">${p.score1}</span> — ${p.t2} <span style="font-weight:700;color:var(--text);">${p.score2}</span></div>
                 <div style="font-size:11px;color:var(--text3);">${p.manches} manche${p.manches>1?'s':''} · ${p.time}</div>
               </div>
-              <button onclick="deleteGame(${p.id})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;flex-shrink:0;">✕</button>
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <span id="game-arrow-${p.id}" style="font-size:13px;color:var(--text2);transition:transform .2s;">▼</span>
+                <button onclick="event.stopPropagation();deleteGame(${p.id})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;">✕</button>
+              </div>
+            </div>
+            <!-- Détail dépliable -->
+            <div id="game-detail-${p.id}" style="display:none;border-top:1px solid #e8e4dc;padding:10px 14px;background:#faf9f6;">
+              ${p.history && p.history.length ? `
+              <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <thead>
+                  <tr style="border-bottom:1px solid #e0ddd6;">
+                    <th style="padding:3px 4px;text-align:left;color:#888;font-weight:600;">#</th>
+                    <th style="padding:3px 4px;text-align:left;color:#888;font-weight:600;">Contrat</th>
+                    <th style="padding:3px 4px;text-align:center;color:#888;font-weight:600;">Résult.</th>
+                    <th style="padding:3px 4px;text-align:right;color:#888;font-weight:600;">${p.t1.split(' & ')[0]}</th>
+                    <th style="padding:3px 4px;text-align:right;color:#888;font-weight:600;">${p.t2.split(' & ')[0]}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${p.history.map(h => `<tr style="border-bottom:1px solid #f0ede6;">
+                    <td style="padding:3px 4px;color:#888;">${String(h.manche).padStart(2,'0')}</td>
+                    <td style="padding:3px 4px;font-weight:700;">${h.contract||'—'}</td>
+                    <td style="padding:3px 4px;text-align:center;">${h.chute?'<span style="color:#cc2222;font-weight:700;">Chute</span>':'<span style="color:#2a7d2e;font-weight:700;">Fait</span>'}</td>
+                    <td style="padding:3px 4px;text-align:right;font-weight:700;color:${h.pts1>0?'#1a6b3c':'#cc2222'};">${h.pts1}</td>
+                    <td style="padding:3px 4px;text-align:right;font-weight:700;color:${h.pts2>0?'#1a6b3c':'#cc2222'};">${h.pts2}</td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>` : '<div style="font-size:12px;color:#aaa;text-align:center;padding:8px;">Détail non disponible</div>'}
             </div>
           </div>
         `).join('')}
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleGameDetail(id) {
+  const detail = eid('game-detail-' + id);
+  const arrow = eid('game-arrow-' + id);
+  if(!detail) return;
+  const isOpen = detail.style.display !== 'none';
+  detail.style.display = isOpen ? 'none' : 'block';
+  if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
 function deleteGame(id) {
@@ -3172,9 +3236,15 @@ function saveEdit() {
 
   closeEdit();
   renderHistory();
-  // Re-rendre feuille si visible dans Parties
-  if(typeof currentSubTab !== 'undefined' && currentSubTab==='feuille') showSubTab('feuille');
+  // Toujours re-rendre feuille et enjeu
+  renderFeuille();
+  renderEnjeu();
   updateScoreDisplay();
+  // Re-rendre le sous-onglet actif si on est dans Parties
+  const partiesTab = eid('tab-parties');
+  if(partiesTab && partiesTab.style.display !== 'none') {
+    if(currentSubTab==='feuille') showSubTab('feuille');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3891,7 +3961,7 @@ function initiales(name) {
 function renderFeuille() {
   const el = eid('feuille-content');
   const titleEl = eid('feuille-title');
-  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name;
+  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<div style="margin-bottom:12px;"></div>';
 
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">Aucune manche jouée</div>';
@@ -5346,6 +5416,7 @@ function showSyncImport() {
 function showSettingsScreen() {
   dismissOnboarding();
   renderSettingsPlayers();
+  updateSetupModeLabel();
   try {
     const cur = localStorage.getItem('bct_theme') || 'green';
     ['green','blue','red'].forEach(k => {
