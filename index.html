@@ -467,6 +467,29 @@
       will-change: transform !important;
     }
 
+    /* Contenu des tabs élargi sur toute la largeur iPad paysage */
+    #tab-contrat .card, #tab-saisie .card, #tab-history .card,
+    #tab-stats .card, #tab-feuille .card, #tab-parties .card {
+      max-width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    #tab-contrat, #tab-saisie, #tab-history,
+    #tab-stats, #tab-feuille, #tab-parties {
+      padding-left: 24px !important;
+      padding-right: 24px !important;
+    }
+    /* Contrat : 2 colonnes */
+    #tab-contrat > .card { max-width: 100% !important; }
+    /* Résultat : 2 colonnes côte à côte */
+    #tab-saisie .score-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+    /* Stats : pleine largeur */
+    #tab-stats .card { max-width: 100% !important; }
+    /* Feuille de score : pleine largeur */
+    #tab-feuille .card, #feuille-content { max-width: 100% !important; }
+    /* Parties : pleine largeur */
+    #tab-parties .card, #history-content, #past-history-content { max-width: 100% !important; }
+
     /* Page TABLE : table à gauche, scores + boutons à droite */
     #tab-enjeu {
       display: grid !important;
@@ -1615,7 +1638,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1225</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260513_2345</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
