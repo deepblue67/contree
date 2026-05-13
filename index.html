@@ -1599,7 +1599,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1025</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1030</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4601,26 +4601,30 @@ function closeEndGame() {
 function confirmEndGame(mode) {
   closeEndGame();
   savePastGame();
-  clearAutoSave();
   haptic('heavy');
-  if(mode === 'change') {
-    S.score = {t1:0,t2:0};
-    S.history = [];
-    S.manche = 1;
-    S.contract = null;
-    saveAutosave();
+  if(mode === 'same') {
+    // Même équipe : équipes conservées, retour config (comme ancien "Nouvelle partie")
+    clearAutoSave();
+    S.score={t1:0,t2:0};
+    S.history=[];
+    S.manche=1;
+    S.contract=null;
+    S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
+    pendingScore=null;
+    refreshTeamPreview();
     showScreen('setup');
     showToast('✅ Partie enregistrée !');
   } else {
-    // Même équipe — nouvelle partie
-    S.score = {t1:0,t2:0};
-    S.history = [];
-    S.manche = 1;
-    S.contract = null;
-    saveAutosave();
-    renderEnjeu();
-    updateScoreDisplay();
-    showTab('enjeu');
+    // Changer d'équipe : selects vidés, retour config (comme ancien "Changement d'équipe")
+    clearAutoSave();
+    S.score={t1:0,t2:0};
+    S.history=[];
+    S.manche=1;
+    S.contract=null;
+    S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
+    pendingScore=null;
+    ['sel-nord','sel-sud','sel-est','sel-ouest'].forEach(id=>{ const el=eid(id); if(el) el.value=''; });
+    showScreen('setup');
     showToast('✅ Partie enregistrée !');
   }
 }
@@ -4948,32 +4952,6 @@ function closeEndGame() {
   eid('end-game-modal').style.display = 'none';
 }
 
-function confirmEndGame(mode) {
-  closeEndGame();
-  savePastGame();
-  clearAutoSave();
-  haptic('heavy');
-  if(mode === 'change') {
-    S.score = {t1:0,t2:0};
-    S.history = [];
-    S.manche = 1;
-    S.contract = null;
-    saveAutosave();
-    showScreen('setup');
-    showToast('✅ Partie enregistrée !');
-  } else {
-    // Même équipe — nouvelle partie
-    S.score = {t1:0,t2:0};
-    S.history = [];
-    S.manche = 1;
-    S.contract = null;
-    saveAutosave();
-    renderEnjeu();
-    updateScoreDisplay();
-    showTab('enjeu');
-    showToast('✅ Partie enregistrée !');
-  }
-}
 
 // ═══════════════════════════════════════════════════════════
 // ONBOARDING — Premier lancement
