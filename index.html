@@ -240,48 +240,57 @@
     #tab-saisie .card > div > div[style*="flex-direction:column"],
     #tab-saisie .card > div > div[style*="flex-direction: column"] { gap: 4px !important; }
 
-    /* Toggle total cartes plus petit */
+    /* Toggle total cartes — même taille que boutons rapides */
     #tab-saisie #toggle-total-160,
     #tab-saisie #toggle-total-170 {
-      padding: 4px 10px !important;
+      padding: 3px 8px !important;
       font-size: 11px !important;
+      border-width: 1px !important;
     }
     #tab-saisie [style*="Total cartes"] {
       font-size: 10px !important;
     }
+    /* Conteneur toggle : marge réduite */
+    #tab-saisie [style*="Total cartes"]:parent,
+    #tab-saisie > .card > div > div:first-child { margin-bottom: 4px !important; }
 
-    /* Steppers plus fins */
-    #stp-t1, #stp-t2 { min-height: 0 !important; }
+    /* Steppers compacts */
+    #stp-t1, #stp-t2 { min-height: 0 !important; height: 32px !important; }
     #stp-t1 button, #stp-t2 button { 
-      height: 34px !important; 
-      width: 34px !important; 
-      font-size: 18px !important;
+      height: 32px !important; 
+      width: 30px !important; 
+      font-size: 16px !important;
       min-height: 0 !important;
+      padding: 0 !important;
     }
     #inp-pts-t1, #inp-pts-t2 { 
-      font-size: 16px !important; 
+      font-size: 15px !important; 
       min-height: 0 !important;
+      height: 32px !important;
     }
 
-    /* Boutons rapides plus lisibles */
+    /* Boutons rapides */
     #tab-saisie span[onclick*="setQuickScore"],
     #tab-saisie span[onclick*="setCapot"] { 
-      font-size: 12px !important; 
-      padding: 5px 9px !important;
+      font-size: 11px !important; 
+      padding: 3px 7px !important;
       min-height: 0 !important;
     }
 
-    /* Belote plus compacte */
+    /* Belote plus visible */
     #lbl-bel-t1-box, #lbl-bel-t2-box {
-      padding: 4px 8px !important;
-      font-size: 10px !important;
+      padding: 5px 10px !important;
+      font-size: 11px !important;
       min-height: 0 !important;
+      background: rgba(255,255,255,0.15) !important;
+      border-color: rgba(255,255,255,0.4) !important;
     }
     #lbl-bel-t1-box input, #lbl-bel-t2-box input {
-      width: 13px !important;
-      height: 13px !important;
+      width: 14px !important;
+      height: 14px !important;
       min-height: 0 !important;
       min-width: 0 !important;
+      accent-color: var(--green) !important;
     }
 
     /* Calculer / Valider / Annuler : même ligne, même taille */
@@ -1552,14 +1561,16 @@
         <div id="feuille-content"></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <button onclick="askEndGame()" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">
-          🏁 Terminer
-        </button>
         <button onclick="exportFeuille('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
-          📤 Texte
+          📤 Partage texte
         </button>
         <button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">
-          📸 Image
+          📸 Partage image
+        </button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px;">
+        <button onclick="askEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">
+          🏁 Terminer la partie
         </button>
       </div>
     </div>
@@ -1599,7 +1610,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1030</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1045</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2098,10 +2109,15 @@ function initGameUI() {
 }
 
 function showTab(tab) {
-  // Bloquer saisie/contrat si pas de partie en cours (screen-setup actif)
   const onSetup = eid('screen-setup') && eid('screen-setup').classList.contains('active');
-  if(onSetup && !['parties','stats'].includes(tab)) {
+  const gameStarted = !!(S.t1 && S.t1.name);
+
+  // Bloquer si pas de partie lancée
+  if(!gameStarted && !['parties','stats'].includes(tab)) {
     showToast('⚠️ Configurez d\'abord une partie');
+    if(onSetup) return;
+    // Si on est sur screen-game sans partie, retourner sur setup
+    showScreen('setup');
     return;
   }
   // Si on est sur setup et qu'on veut Parties ou Stats → basculer vers game
@@ -3985,7 +4001,7 @@ function initiales(name) {
 function renderFeuille() {
   const el = eid('feuille-content');
   const titleEl = eid('feuille-title');
-  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<br>&nbsp;<br>&nbsp;';
+  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<br>&nbsp;';
 
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">Aucune manche jouée</div>';
@@ -4705,9 +4721,10 @@ function showSubTab(sub) {
         '<div id="feuille-content"></div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;margin-top:4px;">' +
-        '<button onclick="askEndGame()" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer</button>' +
-        '<button onclick="exportFeuille(\'share\')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">📤 Texte</button>' +
-        '<button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">📸 Image</button>' +
+        '<button onclick="exportFeuille(\'share\')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">📤 Partage texte</button>' +
+        '<button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">📸 Partage image</button>' +
+        '</div><div style="display:flex;gap:10px;margin-top:6px;">' +
+        '<button onclick="askEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>' +
       '</div>';
     container.appendChild(wrap);
     renderFeuille();
