@@ -1280,10 +1280,10 @@
         </div>
       </div>
 
-      <button id="setup-start-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);startGame();" style="font-size:16px;padding:16px;">
-        Commencer la partie ▶
+      <button id="setup-start-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);startGame();" style="font-size:16px;padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <span>Commencer la partie ▶</span>
+        <span id="setup-mode-label" style="font-size:11px;font-weight:600;color:#111;opacity:0.85;"></span>
       </button>
-      <div id="setup-mode-label" style="text-align:center;font-size:12px;color:rgba(255,255,255,0.55);margin-top:6px;font-style:italic;"></div>
     </div>
   </div>
 
@@ -1610,7 +1610,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1045</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1100</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1639,23 +1639,20 @@
 
         <!-- ── Mode de fin de partie ── -->
         <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">🏁 Mode de fin de partie</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
-          <button id="mode-btn-points" onclick="setGameMode('points')" style="background:var(--green);border:2px solid rgba(255,255,255,0.4);border-radius:14px;padding:14px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;">
-            <span style="font-size:22px;">🏆</span>
-            <span style="font-size:13px;font-weight:800;color:#fff;">Points</span>
-            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;" onclick="event.stopPropagation()">
-              <input id="inp-winning-pts" type="number" min="501" max="9999" value="2001" onclick="event.stopPropagation()" onchange="updateSetupModeLabel()" style="width:62px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.15);color:#fff;padding:3px 4px;font-family:inherit;">
-              <span style="font-size:11px;color:rgba(255,255,255,0.8);">pts</span>
+        <div style="background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;">
+            <!-- Toggle Points / Manches -->
+            <div style="display:flex;background:rgba(0,0,0,0.08);border-radius:99px;padding:3px;gap:2px;flex-shrink:0;">
+              <button id="mode-btn-points" onclick="setGameMode('points')" data-active="1" style="padding:5px 12px;border-radius:99px;border:none;background:var(--green);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;">🏆 Points</button>
+              <button id="mode-btn-manches" onclick="setGameMode('manches')" data-active="0" style="padding:5px 12px;border-radius:99px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;">🔢 Manches</button>
             </div>
-          </button>
-          <button id="mode-btn-manches" onclick="setGameMode('manches')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.15);border-radius:14px;padding:14px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;">
-            <span style="font-size:22px;">🔢</span>
-            <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.6);">Manches</span>
-            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;" onclick="event.stopPropagation()">
-              <input id="inp-winning-manches" type="number" min="1" max="99" value="10" onclick="event.stopPropagation()" onchange="updateSetupModeLabel()" style="width:50px;text-align:center;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);padding:3px 4px;font-family:inherit;">
-              <span style="font-size:11px;color:rgba(255,255,255,0.4);">manches</span>
+            <!-- Champ valeur -->
+            <div style="display:flex;align-items:center;gap:6px;flex:1;" onclick="event.stopPropagation()">
+              <input id="inp-winning-pts" type="number" min="501" max="9999" value="2001" onchange="updateSetupModeLabel()" style="width:70px;text-align:center;font-size:15px;font-weight:700;border:1.5px solid var(--border-light);border-radius:8px;background:#fff;color:var(--text);padding:5px 6px;font-family:inherit;">
+              <input id="inp-winning-manches" type="number" min="1" max="99" value="10" onchange="updateSetupModeLabel()" style="display:none;width:55px;text-align:center;font-size:15px;font-weight:700;border:1.5px solid var(--border-light);border-radius:8px;background:#fff;color:var(--text);padding:5px 6px;font-family:inherit;">
+              <span id="mode-unit-label" style="font-size:13px;color:var(--text2);font-weight:600;">pts</span>
             </div>
-          </button>
+          </div>
         </div>
 
         <!-- ── Thème ── -->
@@ -1992,22 +1989,23 @@ function setGameMode(mode) {
   const btnMan = eid('mode-btn-manches');
   const inpPts = eid('inp-winning-pts');
   const inpMan = eid('inp-winning-manches');
+  const unitLbl = eid('mode-unit-label');
+
   if(btnPts) {
     btnPts.dataset.active = mode==='points' ? '1' : '0';
-    btnPts.style.background = mode==='points' ? 'var(--green)' : 'rgba(255,255,255,0.1)';
-    btnPts.style.borderColor = mode==='points' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
-    const lbl = btnPts.querySelectorAll('span')[1];
-    if(lbl) { lbl.style.color='#fff'; lbl.style.fontWeight=mode==='points'?'800':'700'; lbl.style.opacity=mode==='points'?'1':'0.6'; }
+    btnPts.style.background = mode==='points' ? 'var(--green)' : 'transparent';
+    btnPts.style.color = mode==='points' ? '#fff' : 'var(--text2)';
+    btnPts.style.fontWeight = mode==='points' ? '800' : '600';
   }
   if(btnMan) {
     btnMan.dataset.active = mode==='manches' ? '1' : '0';
-    btnMan.style.background = mode==='manches' ? 'var(--green)' : 'rgba(255,255,255,0.1)';
-    btnMan.style.borderColor = mode==='manches' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
-    const lbl = btnMan.querySelectorAll('span')[1];
-    if(lbl) { lbl.style.color='#fff'; lbl.style.fontWeight=mode==='manches'?'800':'700'; lbl.style.opacity=mode==='manches'?'1':'0.6'; }
+    btnMan.style.background = mode==='manches' ? 'var(--green)' : 'transparent';
+    btnMan.style.color = mode==='manches' ? '#fff' : 'var(--text2)';
+    btnMan.style.fontWeight = mode==='manches' ? '800' : '600';
   }
-  if(inpPts) { inpPts.style.background=mode==='points'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)'; inpPts.style.color=mode==='points'?'#fff':'rgba(255,255,255,0.3)'; }
-  if(inpMan) { inpMan.style.background=mode==='manches'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)'; inpMan.style.color=mode==='manches'?'#fff':'rgba(255,255,255,0.3)'; }
+  if(inpPts) inpPts.style.display = mode==='points' ? 'block' : 'none';
+  if(inpMan) inpMan.style.display = mode==='manches' ? 'block' : 'none';
+  if(unitLbl) unitLbl.textContent = mode==='points' ? 'pts' : 'manches';
   updateSetupModeLabel();
 }
 
@@ -4602,10 +4600,16 @@ function goToScoreSheet() {
 function askEndGame() {
   const s1 = S.score.t1, s2 = S.score.t2;
   const winner = s1 > s2 ? S.t1.name : s2 > s1 ? S.t2.name : null;
+  const loser  = s1 > s2 ? S.t2.name : s2 > s1 ? S.t1.name : null;
   const winPts = s1 > s2 ? s1 : s2;
-  const msg = winner
-    ? `Le gagnant est <strong style="color:var(--green);">${winner}</strong> avec <strong>${winPts} pts</strong>.`
-    : `Égalité — <strong>${s1} pts</strong> partout.`;
+  const losePts= s1 > s2 ? s2 : s1;
+  let msg;
+  if(winner) {
+    msg = `🏆 <strong style="color:var(--green);">${winner}</strong> — <strong>${winPts} pts</strong><br>` +
+          `<span style="opacity:0.7;">${loser} — ${losePts} pts</span>`;
+  } else {
+    msg = `Égalité — <strong>${s1} pts</strong> partout.`;
+  }
   eid('end-game-msg').innerHTML = msg;
   eid('end-game-modal').style.display = 'flex';
 }
