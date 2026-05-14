@@ -410,6 +410,10 @@
     #screen-setup .body { padding-bottom: 100px !important; }
     #setup-table-wrap { overflow: hidden !important; }
     #setup-table-wrap svg { max-height: calc(100dvh - 260px) !important; width: 100% !important; height: auto !important; display: block !important; }
+    /* Donneur sur une ligne uniquement iPad portrait */
+    #setup-donneur-inner { display:flex !important; align-items:center !important; gap:12px !important; padding:10px 18px !important; }
+    #setup-donneur-label { margin-bottom:0 !important; white-space:nowrap !important; flex-shrink:0 !important; }
+    #sel-first-dealer { width:auto !important; flex:1 !important; min-width:0 !important; font-size:13px !important; padding:7px 12px !important; }
     .card { padding: 22px 28px; border-radius: 22px; }
     .card-title { font-size: 14px; }
     .btn { font-size: 18px; padding: 18px 28px; }
@@ -440,8 +444,6 @@
     #ej-table-wrap svg { max-height: 55vh !important; }
     #tab-enjeu { padding: 16px 16px 24px !important; }
     .score-board { gap: 14px; }
-    #setup-table-wrap { max-width: 100% !important; }
-    #setup-table-wrap svg { max-height: calc(100vh - 280px) !important; width: 100% !important; height: auto !important; }
   }
 
   /* ══ IPAD PAYSAGE (900px+) ══ */
@@ -748,7 +750,7 @@
   .marque-table .pts-zero { color: var(--red); font-weight: 700; text-align: center; }
 
   /* ── BOTTOM NAV ── */
-  .bottom-nav { background: var(--panel); border-top: 1px solid rgba(255,255,255,0.08); display: grid; padding-bottom: env(safe-area-inset-bottom, 0px); position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; width: 100% !important; height: 44px; z-index: 9999 !important; }
+  .bottom-nav { background: var(--panel); display: grid; padding-bottom: env(safe-area-inset-bottom, 0px); position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; width: 100% !important; height: 44px; z-index: 9999 !important; }
   .bottom-nav.nav4 { grid-template-columns: repeat(4, 1fr); }
   .bottom-nav.nav5 { grid-template-columns: repeat(5, 1fr); }
   .bottom-nav.nav6 { grid-template-columns: repeat(6, 1fr); }
@@ -1194,11 +1196,11 @@
       background: var(--panel) !important;
       display: flex !important; align-items: center !important;
     }
-                .nav-item {
+    .nav-item {
       flex: 1 !important; height: 68px !important;
       display: flex !important; flex-direction: column !important;
-      align-items: center !important; justify-content: flex-end !important;
-      padding: 0 0 20px 0 !important; gap: 2px !important;
+      align-items: center !important; justify-content: center !important;
+      padding: 8px 0 0 0 !important; gap: 2px !important;
       font-size: 11px !important;
     }
     .nav-item .ni-icon { font-size: 26px !important; line-height: 1 !important; }
@@ -1390,9 +1392,9 @@
       </div>
 
       <div id="setup-donneur-wrap" style="display:flex;justify-content:center;">
-        <div style="display:flex;align-items:center;gap:12px;min-width:0;background:#1a4a1a;border:2px solid #c8a84a;border-radius:var(--radius);padding:10px 18px;">
-          <div style="font-size:11px;font-weight:700;color:#c8a84a;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;flex-shrink:0;">🃏 Donneur du 1er tour</div>
-          <select id="sel-first-dealer" style="background:#2d6b26;color:#fff;border:1px solid #c8a84a;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;text-align:center;-webkit-appearance:none;appearance:none;flex:1;min-width:0;"><option value="random">🎲 Tirage aléatoire</option></select>
+        <div id="setup-donneur-inner" style="display:inline-block;min-width:0;background:#1a4a1a;border:2px solid #c8a84a;border-radius:var(--radius);padding:14px 24px;">
+          <div id="setup-donneur-label" style="font-size:11px;font-weight:700;color:#c8a84a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;text-align:center;">🃏 Donneur du premier tour</div>
+          <select id="sel-first-dealer" style="background:#2d6b26;color:#fff;border:1px solid #c8a84a;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;width:100%;text-align:center;-webkit-appearance:none;appearance:none;"><option value="random">🎲 Tirage aléatoire</option></select>
         </div>
       </div>
 
@@ -1745,7 +1747,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260514_2125</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260514_2145</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4716,7 +4718,7 @@ function fixSetupTableSize() {
   }
 }
 window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); setTimeout(fixEastWestPC, 400); setTimeout(fixEastWestPC, 800); });
-window.addEventListener('resize', () => { fixSetupTableSize(); fixEastWestPC(); });
+window.addEventListener('resize', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); setTimeout(fixEastWestPC, 400); });
 
 // Re-rendre la page active quand on tourne le téléphone (initiales 3↔6 chars)
 let _lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
