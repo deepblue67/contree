@@ -1191,11 +1191,11 @@
       background: var(--panel) !important;
       display: flex !important; align-items: center !important;
     }
-    .nav-item {
+                .nav-item {
       flex: 1 !important; height: 68px !important;
       display: flex !important; flex-direction: column !important;
       align-items: center !important; justify-content: flex-end !important;
-      padding: 0 0 10px 0 !important; gap: 2px !important;
+      padding: 0 0 16px 0 !important; gap: 2px !important;
       font-size: 11px !important;
     }
     .nav-item .ni-icon { font-size: 26px !important; line-height: 1 !important; }
@@ -1743,7 +1743,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260514_2055</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260514_2115</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4562,6 +4562,12 @@ function showToast(msg) {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
+  if(name === 'setup') {
+    // Laisser le CSS (media query iPad Pro) rendre la SVG avant de positionner Est/Ouest
+    setTimeout(fixEastWestPC, 50);
+    setTimeout(fixEastWestPC, 200);
+    setTimeout(fixEastWestPC, 500);
+  }
 }
 
 // ── HAPTIC & VISUAL FEEDBACK ─────────────────────────────
@@ -4652,23 +4658,31 @@ function fixEastWestPC() {
   const wrap = eid('setup-table-wrap');
   const svg = wrap ? wrap.querySelector('svg') : null;
   if(!svg) return;
+  // Les divs Est/Ouest sont position:absolute dans setup-table-wrap
+  // On calcule leur position par rapport au wrap (leur parent positionné)
   const svgRect = svg.getBoundingClientRect();
   const wrapRect = wrap.getBoundingClientRect();
-  // Offset de la SVG dans le wrapper
-  const svgOffsetLeft = svgRect.left - wrapRect.left;
-  const svgOffsetRight = wrapRect.right - svgRect.right;
-  const svgWidth = svgRect.width;
-  // Positionner EST et OUEST à 8% de la largeur SVG depuis les bords de la SVG
-  const margin = svgWidth * 0.06;
+  // Offset de la SVG dans le wrap
+  const svgOffLeft  = svgRect.left - wrapRect.left;
+  const svgOffTop   = svgRect.top  - wrapRect.top;
+  const svgOffRight = wrapRect.right - svgRect.right;
+  const svgW = svgRect.width;
+  const svgH = svgRect.height;
+  const margin = svgW * 0.07;
+  const midY  = svgOffTop + svgH * 0.5;
   const ouest = eid('setup-wrap-ouest');
-  const est = eid('setup-wrap-est');
+  const est   = eid('setup-wrap-est');
   if(ouest) {
-    ouest.style.left = (svgOffsetLeft + margin) + 'px';
-    ouest.style.right = 'auto';
+    ouest.style.left      = (svgOffLeft + margin) + 'px';
+    ouest.style.right     = 'auto';
+    ouest.style.top       = midY + 'px';
+    ouest.style.transform = 'translateY(-50%)';
   }
   if(est) {
-    est.style.right = (svgOffsetRight + margin) + 'px';
-    est.style.left = 'auto';
+    est.style.right     = (svgOffRight + margin) + 'px';
+    est.style.left      = 'auto';
+    est.style.top       = midY + 'px';
+    est.style.transform = 'translateY(-50%)';
   }
 }
 
@@ -4699,7 +4713,7 @@ function fixSetupTableSize() {
     svg.style.cssText = 'display:block;border-radius:16px;';
   }
 }
-window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); });
+window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); setTimeout(fixEastWestPC, 400); setTimeout(fixEastWestPC, 800); });
 window.addEventListener('resize', () => { fixSetupTableSize(); fixEastWestPC(); });
 
 // Re-rendre la page active quand on tourne le téléphone (initiales 3↔6 chars)
