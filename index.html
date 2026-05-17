@@ -453,7 +453,7 @@
   ════════════════════════════════════════════════════════════════ */
   @media (min-width: 600px) and (orientation: portrait) {
     html { background: var(--panel) !important; }
-    #app { max-width: 100%; width: 100%; min-height: 100dvh; }
+    #app { max-width: 100% !important; width: 100% !important; min-height: 100dvh; }
     .header { padding-top: max(10px, env(safe-area-inset-top, 10px)) !important; padding-bottom: 10px !important; }
     .header h1 { font-size: 24px; }
 
@@ -490,11 +490,12 @@
     #history-content table tfoot td { font-size: 16px !important; }
     #history-title { font-size: 15px !important; }
 
-    /* Tabs overlay fixed en iPad portrait : hors #app donc position:fixed fonctionne */
+    /* Tabs iPad portrait : position fixed, pleine largeur */
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
-      position: fixed !important; top: 55px !important; left: 0 !important; right: 0 !important; bottom: 70px !important;
+      position: fixed !important;
+      top: 55px !important; left: 0 !important; right: 0 !important; bottom: 70px !important;
       z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important;
-      -webkit-overflow-scrolling: touch !important; overscroll-behavior: contain !important;
+      -webkit-overflow-scrolling: touch !important;
       padding: 24px 32px !important; background: #2e6b28 !important;
       width: 100% !important; box-sizing: border-box !important;
       flex-direction: column !important; gap: 16px !important;
@@ -848,7 +849,9 @@
         </div>
       </div>
 
-      <!-- Modale liste des joueurs -->
+    <!-- Tabs overlay : hors de #app pour éviter max-width:480px -->
+                            
+  <!-- Modale liste des joueurs -->
       <!-- ══ MODAL RÉGLAGES ══ -->
 
 
@@ -909,6 +912,265 @@
 
     </div>
 
+<div id="tab-contrat" class="body tab-hidden">
+
+    <div class="card">
+      <div class="card-title">Contrat</div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>Équipe preneuse</label>
+        <div class="btn-row">
+          <button class="btn btn-outline" id="btn-preneur-t1" onclick="selectPreneur('t1')" style="font-size:13px;flex:1;"></button>
+          <button class="btn btn-outline" id="btn-preneur-t2" onclick="selectPreneur('t2')" style="font-size:13px;flex:1;"></button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:14px;">
+        <div id="stepper-area">
+          <div class="stepper">
+            <button onclick="stepContract(-10)">−</button>
+            <input class="sv" id="contract-val" type="number" value="80" min="80" max="250" step="10" readonly>
+            <button onclick="stepContract(10)">+</button>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;" id="quick-btns"></div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:14px;">
+        <label>Couleur atout</label>
+        <div class="suit-group">
+          <div class="suit-btn" id="suit-h" onclick="selectSuit('♥','h','red')">
+            <div style="color:#b83232;">♥</div><span class="suit-name">Cœur</span>
+          </div>
+          <div class="suit-btn" id="suit-d" onclick="selectSuit('♦','d','red')">
+            <div style="color:#b83232;">♦</div><span class="suit-name">Carreau</span>
+          </div>
+          <div class="suit-btn" id="suit-c" onclick="selectSuit('♣','c','dark')">
+            <div>♣</div><span class="suit-name">Trèfle</span>
+          </div>
+          <div class="suit-btn" id="suit-s" onclick="selectSuit('♠','s','dark')">
+            <div>♠</div><span class="suit-name">Pique</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Contre / Surcontre</label>
+        <div class="chip-group">
+          <div class="chip selected-green" id="chip-contre-none" onclick="selectContre('none')">Aucun</div>
+          <div class="chip" id="chip-contre-contre" onclick="selectContre('contre')">Contre ×2</div>
+          <div class="chip" id="chip-contre-surcontre" onclick="selectContre('surcontre')">Surcontre ×3</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="contrat-btn-row" style="display:flex;gap:8px;">
+      <button id="contrat-confirmer-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);confirmContract();" style="flex:1;font-size:16px;padding:16px;">
+        ✓ Confirmer le contrat
+      </button>
+      <button id="contrat-retour-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="flex:1;font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Retour à la table</button>
+    </div>
+  </div>
+<div id="tab-saisie" class="body tab-hidden">
+    <div class="card" style="overflow:hidden;">
+
+      <!-- Box contrat — EN HAUT de la card, toujours visible -->
+      <div id="contract-reminder"></div>
+
+      <div class="card-title" style="margin-bottom:10px;">Résultat de la manche</div>
+
+      <!-- Colonnes équipes — alignées strictement, overflow contrôlé -->
+      <!-- Toggle total 160 / 170 -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
+        <span style="font-size:12px;color:var(--text2);font-weight:600;">Total cartes :</span>
+        <button id="toggle-total-160" onclick="setScoreTotal(160)" style="padding:6px 16px;border-radius:99px;border:2px solid var(--green);background:var(--green);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;">160</button>
+        <button id="toggle-total-170" onclick="setScoreTotal(170)" style="padding:6px 16px;border-radius:99px;border:2px solid #1a1a1a;background:rgba(255,255,255,0.1);color:#1a1a1a;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">170</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
+
+        <!-- ── Équipe 1 ── -->
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
+          <label id="lbl-pts-t1" style="text-align:center;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Équipe 1</label>
+
+          <div class="stepper" id="stp-t1">
+            <button onclick="stepScore('t1',-10)" type="button">−</button>
+            <input class="sv" type="number" id="inp-pts-t1" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
+            <button onclick="stepScore('t1',10)" type="button">+</button>
+          </div>
+
+          <!-- Boutons rapides style contrat -->
+          <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+            <span onclick="setQuickScore('t1',80)"  style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">80</span>
+            <span onclick="setQuickScore('t1',100)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">100</span>
+            <span onclick="setQuickScore('t1',120)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">120</span>
+            <span onclick="setQuickScore('t1',140)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">140</span>
+            <span id="btn-capot-t1" onclick="setCapot('t1')" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #1a5295;background:#e8f0fb;color:#1a5295;font-weight:800;touch-action:manipulation;white-space:nowrap;">Capot</span>
+          </div>
+
+          <!-- Belote T1 — sans icônes cartes -->
+          <label id="lbl-bel-t1-box" style="display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:all 0.15s;">
+            <input type="checkbox" id="chk-bel-t1" onchange="onBeloteChange(1)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green);flex-shrink:0;">
+            <span>Belote</span>
+          </label>
+        </div>
+
+        <!-- ── Équipe 2 ── -->
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
+          <label id="lbl-pts-t2" style="text-align:center;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Équipe 2</label>
+
+          <div class="stepper" id="stp-t2">
+            <button onclick="stepScore('t2',-10)" type="button">−</button>
+            <input class="sv" type="number" id="inp-pts-t2" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
+            <button onclick="stepScore('t2',10)" type="button">+</button>
+          </div>
+
+          <!-- Boutons rapides style contrat -->
+          <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+            <span onclick="setQuickScore('t2',80)"  style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">80</span>
+            <span onclick="setQuickScore('t2',100)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">100</span>
+            <span onclick="setQuickScore('t2',120)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">120</span>
+            <span onclick="setQuickScore('t2',140)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">140</span>
+            <span id="btn-capot-t2" onclick="setCapot('t2')" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #1a5295;background:#e8f0fb;color:#1a5295;font-weight:800;touch-action:manipulation;white-space:nowrap;">Capot</span>
+          </div>
+
+          <!-- Belote T2 — sans icônes cartes -->
+          <label id="lbl-bel-t2-box" style="display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:all 0.15s;">
+            <input type="checkbox" id="chk-bel-t2" onchange="onBeloteChange(2)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green);flex-shrink:0;">
+            <span>Belote</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Champs cachés pour compatibilité calcul -->
+      <input type="hidden" id="chk-bel-t1-hidden">
+      <input type="hidden" id="chk-bel-t2-hidden">
+      <input type="checkbox" id="chk-cap-t1" style="display:none;">
+      <input type="checkbox" id="chk-cap-t2" style="display:none;">
+      <input type="checkbox" id="chk-capot-fait" style="display:none;">
+    </div>
+
+    <div id="score-calc-result" style="display:none;"></div>
+
+    <div id="saisie-actions" style="display:contents;">
+      <button id="calc-preview-btn" class="btn btn-green btn-full" onclick="calcAndPreview()" style="font-size:15px;padding:15px;">
+        Calculer & Prévisualiser
+      </button>
+      <div id="confirm-score-btn" style="display:none;">
+        <button class="btn btn-gold btn-full" onclick="haptic('success');bounce(this);validateScore();" style="font-size:16px;padding:16px;">
+          ✓ Valider la manche
+        </button>
+      </div>
+      <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
+    </div>
+  </div>
+<div id="tab-history" class="body tab-hidden">
+    <!-- Historique de la partie en cours -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="card-title" style="margin-bottom:0;" id="history-title">Partie en cours</div>
+      </div>
+      <div id="history-content"></div>
+    </div>
+    <!-- Historique des parties précédentes (localStorage) -->
+    <div class="card">
+      <div onclick="togglePastHistory()" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;cursor:pointer;user-select:none;">
+        <div class="card-title" style="margin-bottom:0;">Parties précédentes</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="event.stopPropagation();clearAllHistory()" style="background:rgba(204,31,31,0.15);border:1px solid rgba(204,31,31,0.4);border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 12px;cursor:pointer;font-family:inherit;">🗑 Tout effacer</button>
+          <span id="past-history-arrow" style="font-size:18px;color:var(--text2);transition:transform 0.25s;">▼</span>
+        </div>
+      </div>
+      <div id="past-history-wrap" style="margin-top:12px;">
+        <div id="past-history-content"></div>
+      </div>
+    </div>
+  </div>
+<div id="tab-stats" class="body tab-hidden">
+
+    <!-- Partie en cours -->
+    <div class="card" id="stats-current-card">
+      <div class="card-title">📊 Partie en cours</div>
+      <div id="stats-current-content"></div>
+    </div>
+
+    <!-- Graphique évolution scores -->
+    <div class="card">
+      <div class="card-title">📈 Évolution des scores</div>
+      <div id="stats-chart-wrap" style="overflow-x:auto;">
+        <canvas id="stats-chart" style="width:100%;height:180px;display:block;"></canvas>
+      </div>
+    </div>
+
+    <!-- Stats par équipe -->
+    <div class="card">
+      <div class="card-title">🏆 Stats des équipes — toutes parties</div>
+      <div id="stats-teams-content"></div>
+    </div>
+
+    <!-- Stats par joueur -->
+    <div class="card">
+      <div class="card-title">👤 Stats par joueur — toutes parties</div>
+      <div id="stats-players-content"></div>
+    </div>
+
+    <!-- Bouton export -->
+    <div style="display:flex;gap:10px;">
+      <button onclick="exportStats('copy')" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;">
+        📋 Copier
+      </button>
+      <button onclick="exportStats('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
+        📤 Partager
+      </button>
+    </div>
+
+  </div>
+<div id="tab-marque" class="body tab-hidden">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;">Aide à la marque</div>
+
+      </div>
+      <div class="info-note" style="margin-bottom:12px;font-size:12px;">
+        Total cartes = 162 pts (arrondi à 6). Chute = annonce × mult + 160. Belote = +20 pts (non doublé/triplé). Partie = 2001 pts.
+      </div>
+      <table class="marque-table">
+        <thead><tr><th>Annonce</th><th>Preneurs</th><th>Adversaires</th></tr></thead>
+        <tbody id="marque-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+<div id="tab-feuille" class="body tab-hidden">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div id="feuille-title" class="card-title" style="margin-bottom:0;font-size:14px;line-height:1.4;">Feuille de score</div>
+
+      </div>
+      <div id="feuille-content"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button onclick="exportFeuille('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
+        📤 Partage texte
+      </button>
+      <button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">
+        📸 Partage image
+      </button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px;">
+      <button onclick="askEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">
+        🏁 Terminer la partie
+      </button>
+    </div>
+  </div>
+<div id="tab-parties" class="body tab-hidden">
+    <!-- Sous-onglets -->
+    <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
+      <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 En cours</button>
+      <button id="sub-tab-history" onclick="showSubTab('history')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">📋 Historique</button>
+
+    </div>
+    <div id="sub-content-parties"></div>
+  </div>
+
     <!-- TAB: CONTRACT INPUT -->
 
     <!-- TAB: SCORE SAISIE -->
@@ -941,7 +1203,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1835</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1855</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -5427,268 +5689,6 @@ setTimeout(() => {
   checkOnboarding();
 }, 1500);
 </script>
-
-
-
-  <!-- Tabs overlay : hors de #app pour éviter max-width:480px -->
-    <div id="tab-contrat" class="body tab-hidden">
-
-    <div class="card">
-      <div class="card-title">Contrat</div>
-      <div class="field" style="margin-bottom:14px;">
-        <label>Équipe preneuse</label>
-        <div class="btn-row">
-          <button class="btn btn-outline" id="btn-preneur-t1" onclick="selectPreneur('t1')" style="font-size:13px;flex:1;"></button>
-          <button class="btn btn-outline" id="btn-preneur-t2" onclick="selectPreneur('t2')" style="font-size:13px;flex:1;"></button>
-        </div>
-      </div>
-
-      <div class="field" style="margin-bottom:14px;">
-        <div id="stepper-area">
-          <div class="stepper">
-            <button onclick="stepContract(-10)">−</button>
-            <input class="sv" id="contract-val" type="number" value="80" min="80" max="250" step="10" readonly>
-            <button onclick="stepContract(10)">+</button>
-          </div>
-          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;" id="quick-btns"></div>
-        </div>
-      </div>
-
-      <div class="field" style="margin-bottom:14px;">
-        <label>Couleur atout</label>
-        <div class="suit-group">
-          <div class="suit-btn" id="suit-h" onclick="selectSuit('♥','h','red')">
-            <div style="color:#b83232;">♥</div><span class="suit-name">Cœur</span>
-          </div>
-          <div class="suit-btn" id="suit-d" onclick="selectSuit('♦','d','red')">
-            <div style="color:#b83232;">♦</div><span class="suit-name">Carreau</span>
-          </div>
-          <div class="suit-btn" id="suit-c" onclick="selectSuit('♣','c','dark')">
-            <div>♣</div><span class="suit-name">Trèfle</span>
-          </div>
-          <div class="suit-btn" id="suit-s" onclick="selectSuit('♠','s','dark')">
-            <div>♠</div><span class="suit-name">Pique</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Contre / Surcontre</label>
-        <div class="chip-group">
-          <div class="chip selected-green" id="chip-contre-none" onclick="selectContre('none')">Aucun</div>
-          <div class="chip" id="chip-contre-contre" onclick="selectContre('contre')">Contre ×2</div>
-          <div class="chip" id="chip-contre-surcontre" onclick="selectContre('surcontre')">Surcontre ×3</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="contrat-btn-row" style="display:flex;gap:8px;">
-      <button id="contrat-confirmer-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);confirmContract();" style="flex:1;font-size:16px;padding:16px;">
-        ✓ Confirmer le contrat
-      </button>
-      <button id="contrat-retour-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="flex:1;font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Retour à la table</button>
-    </div>
-  </div>
-    <div id="tab-saisie" class="body tab-hidden">
-    <div class="card" style="overflow:hidden;">
-
-      <!-- Box contrat — EN HAUT de la card, toujours visible -->
-      <div id="contract-reminder"></div>
-
-      <div class="card-title" style="margin-bottom:10px;">Résultat de la manche</div>
-
-      <!-- Colonnes équipes — alignées strictement, overflow contrôlé -->
-      <!-- Toggle total 160 / 170 -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
-        <span style="font-size:12px;color:var(--text2);font-weight:600;">Total cartes :</span>
-        <button id="toggle-total-160" onclick="setScoreTotal(160)" style="padding:6px 16px;border-radius:99px;border:2px solid var(--green);background:var(--green);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;">160</button>
-        <button id="toggle-total-170" onclick="setScoreTotal(170)" style="padding:6px 16px;border-radius:99px;border:2px solid #1a1a1a;background:rgba(255,255,255,0.1);color:#1a1a1a;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">170</button>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
-
-        <!-- ── Équipe 1 ── -->
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
-          <label id="lbl-pts-t1" style="text-align:center;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Équipe 1</label>
-
-          <div class="stepper" id="stp-t1">
-            <button onclick="stepScore('t1',-10)" type="button">−</button>
-            <input class="sv" type="number" id="inp-pts-t1" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
-            <button onclick="stepScore('t1',10)" type="button">+</button>
-          </div>
-
-          <!-- Boutons rapides style contrat -->
-          <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
-            <span onclick="setQuickScore('t1',80)"  style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">80</span>
-            <span onclick="setQuickScore('t1',100)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">100</span>
-            <span onclick="setQuickScore('t1',120)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">120</span>
-            <span onclick="setQuickScore('t1',140)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">140</span>
-            <span id="btn-capot-t1" onclick="setCapot('t1')" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #1a5295;background:#e8f0fb;color:#1a5295;font-weight:800;touch-action:manipulation;white-space:nowrap;">Capot</span>
-          </div>
-
-          <!-- Belote T1 — sans icônes cartes -->
-          <label id="lbl-bel-t1-box" style="display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:all 0.15s;">
-            <input type="checkbox" id="chk-bel-t1" onchange="onBeloteChange(1)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green);flex-shrink:0;">
-            <span>Belote</span>
-          </label>
-        </div>
-
-        <!-- ── Équipe 2 ── -->
-        <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
-          <label id="lbl-pts-t2" style="text-align:center;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Équipe 2</label>
-
-          <div class="stepper" id="stp-t2">
-            <button onclick="stepScore('t2',-10)" type="button">−</button>
-            <input class="sv" type="number" id="inp-pts-t2" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
-            <button onclick="stepScore('t2',10)" type="button">+</button>
-          </div>
-
-          <!-- Boutons rapides style contrat -->
-          <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
-            <span onclick="setQuickScore('t2',80)"  style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">80</span>
-            <span onclick="setQuickScore('t2',100)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">100</span>
-            <span onclick="setQuickScore('t2',120)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">120</span>
-            <span onclick="setQuickScore('t2',140)" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">140</span>
-            <span id="btn-capot-t2" onclick="setCapot('t2')" style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #1a5295;background:#e8f0fb;color:#1a5295;font-weight:800;touch-action:manipulation;white-space:nowrap;">Capot</span>
-          </div>
-
-          <!-- Belote T2 — sans icônes cartes -->
-          <label id="lbl-bel-t2-box" style="display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:all 0.15s;">
-            <input type="checkbox" id="chk-bel-t2" onchange="onBeloteChange(2)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green);flex-shrink:0;">
-            <span>Belote</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Champs cachés pour compatibilité calcul -->
-      <input type="hidden" id="chk-bel-t1-hidden">
-      <input type="hidden" id="chk-bel-t2-hidden">
-      <input type="checkbox" id="chk-cap-t1" style="display:none;">
-      <input type="checkbox" id="chk-cap-t2" style="display:none;">
-      <input type="checkbox" id="chk-capot-fait" style="display:none;">
-    </div>
-
-    <div id="score-calc-result" style="display:none;"></div>
-
-    <div id="saisie-actions" style="display:contents;">
-      <button id="calc-preview-btn" class="btn btn-green btn-full" onclick="calcAndPreview()" style="font-size:15px;padding:15px;">
-        Calculer & Prévisualiser
-      </button>
-      <div id="confirm-score-btn" style="display:none;">
-        <button class="btn btn-gold btn-full" onclick="haptic('success');bounce(this);validateScore();" style="font-size:16px;padding:16px;">
-          ✓ Valider la manche
-        </button>
-      </div>
-      <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
-    </div>
-  </div>
-    <div id="tab-history" class="body tab-hidden">
-    <!-- Historique de la partie en cours -->
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="card-title" style="margin-bottom:0;" id="history-title">Partie en cours</div>
-      </div>
-      <div id="history-content"></div>
-    </div>
-    <!-- Historique des parties précédentes (localStorage) -->
-    <div class="card">
-      <div onclick="togglePastHistory()" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;cursor:pointer;user-select:none;">
-        <div class="card-title" style="margin-bottom:0;">Parties précédentes</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button onclick="event.stopPropagation();clearAllHistory()" style="background:rgba(204,31,31,0.15);border:1px solid rgba(204,31,31,0.4);border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 12px;cursor:pointer;font-family:inherit;">🗑 Tout effacer</button>
-          <span id="past-history-arrow" style="font-size:18px;color:var(--text2);transition:transform 0.25s;">▼</span>
-        </div>
-      </div>
-      <div id="past-history-wrap" style="margin-top:12px;">
-        <div id="past-history-content"></div>
-      </div>
-    </div>
-  </div>
-    <div id="tab-stats" class="body tab-hidden">
-
-    <!-- Partie en cours -->
-    <div class="card" id="stats-current-card">
-      <div class="card-title">📊 Partie en cours</div>
-      <div id="stats-current-content"></div>
-    </div>
-
-    <!-- Graphique évolution scores -->
-    <div class="card">
-      <div class="card-title">📈 Évolution des scores</div>
-      <div id="stats-chart-wrap" style="overflow-x:auto;">
-        <canvas id="stats-chart" style="width:100%;height:180px;display:block;"></canvas>
-      </div>
-    </div>
-
-    <!-- Stats par équipe -->
-    <div class="card">
-      <div class="card-title">🏆 Stats des équipes — toutes parties</div>
-      <div id="stats-teams-content"></div>
-    </div>
-
-    <!-- Stats par joueur -->
-    <div class="card">
-      <div class="card-title">👤 Stats par joueur — toutes parties</div>
-      <div id="stats-players-content"></div>
-    </div>
-
-    <!-- Bouton export -->
-    <div style="display:flex;gap:10px;">
-      <button onclick="exportStats('copy')" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;">
-        📋 Copier
-      </button>
-      <button onclick="exportStats('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
-        📤 Partager
-      </button>
-    </div>
-
-  </div>
-    <div id="tab-marque" class="body tab-hidden">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div class="card-title" style="margin-bottom:0;">Aide à la marque</div>
-
-      </div>
-      <div class="info-note" style="margin-bottom:12px;font-size:12px;">
-        Total cartes = 162 pts (arrondi à 6). Chute = annonce × mult + 160. Belote = +20 pts (non doublé/triplé). Partie = 2001 pts.
-      </div>
-      <table class="marque-table">
-        <thead><tr><th>Annonce</th><th>Preneurs</th><th>Adversaires</th></tr></thead>
-        <tbody id="marque-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-    <div id="tab-feuille" class="body tab-hidden">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div id="feuille-title" class="card-title" style="margin-bottom:0;font-size:14px;line-height:1.4;">Feuille de score</div>
-
-      </div>
-      <div id="feuille-content"></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px;">
-      <button onclick="exportFeuille('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
-        📤 Partage texte
-      </button>
-      <button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">
-        📸 Partage image
-      </button>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:6px;">
-      <button onclick="askEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">
-        🏁 Terminer la partie
-      </button>
-    </div>
-  </div>
-    <div id="tab-parties" class="body tab-hidden">
-    <!-- Sous-onglets -->
-    <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
-      <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 En cours</button>
-      <button id="sub-tab-history" onclick="showSubTab('history')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">📋 Historique</button>
-
-    </div>
-    <div id="sub-content-parties"></div>
-  </div>
 
 </body>
 </html>
