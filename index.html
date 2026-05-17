@@ -516,6 +516,15 @@
     /* Bloquer le scroll élastique iOS quand un overlay est actif */
     body.ipad-overlay-active { overflow: hidden !important; touch-action: none !important; }
     body.ipad-overlay-active #tab-enjeu { visibility: hidden !important; pointer-events: none !important; }
+    /* Backdrop opaque qui couvre tout l'espace tab quand overlay actif */
+    body.ipad-overlay-active::before {
+      content: '' !important;
+      position: fixed !important;
+      top: 44px !important; left: 0 !important; right: 0 !important; bottom: 48px !important;
+      background: #2e6b28 !important;
+      z-index: 499 !important;
+      pointer-events: none !important;
+    }
     #tab-contrat[style*="display: none"], #tab-saisie[style*="display: none"], #tab-history[style*="display: none"], #tab-stats[style*="display: none"], #tab-marque[style*="display: none"], #tab-feuille[style*="display: none"], #tab-parties[style*="display: none"],
     #tab-contrat[style*="display:none"], #tab-saisie[style*="display:none"], #tab-history[style*="display:none"], #tab-stats[style*="display:none"], #tab-marque[style*="display:none"], #tab-feuille[style*="display:none"], #tab-parties[style*="display:none"] { display: none !important; }
     .card { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; }
@@ -1136,7 +1145,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1525</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1530</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
