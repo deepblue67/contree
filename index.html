@@ -43,6 +43,7 @@
 
   /* ── SCREENS ── */
   .screen { display: none; flex-direction: column; flex: 1; }
+  .tab-hidden { display: none !important; }
   .screen.active { display: flex; }
   .screen.active { animation: screenFadeIn 0.22s ease-out; }
   @keyframes screenFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -178,6 +179,9 @@
   .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0 2px; height: 44px; cursor: pointer; border: none; background: transparent; color: rgba(255,255,255,0.35); font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-family: inherit; transition: color 0.15s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; }
   .nav-item .ni-icon { font-size: 14px; line-height: 1; }
   .nav-item.active { color: #7ddd82; }
+
+  /* tab-enjeu padding par défaut (remplace le style inline supprimé) */
+  #tab-enjeu { padding: 8px 0 90px; }
 
   /* ── MANCHE EN COURS (défaut = iPhone portrait) ── */
   #screen-mancheencours { background: var(--bg); flex-direction: column; min-height: 100vh; }
@@ -878,7 +882,7 @@
     </div>
 
     <!-- TAB: EN JEU — PAGE PRINCIPALE -->
-    <div id="tab-enjeu" class="body" style="display:none;padding:8px 0 90px;">
+    <div id="tab-enjeu" class="body tab-hidden">
 
       <!-- Table de belote -->
       <div id="ej-table-wrap" style="width:100%;max-width:600px;margin:0 auto;padding:0 8px;">
@@ -903,7 +907,7 @@
     </div>
 
     <!-- TAB: CONTRACT INPUT -->
-    <div id="tab-contrat" class="body" style="display:none;">
+    <div id="tab-contrat" class="body tab-hidden">
 
       <div class="card">
         <div class="card-title">Contrat</div>
@@ -963,7 +967,7 @@
     </div>
 
     <!-- TAB: SCORE SAISIE -->
-    <div id="tab-saisie" class="body" style="display:none;">
+    <div id="tab-saisie" class="body tab-hidden">
       <div class="card" style="overflow:hidden;">
 
         <!-- Box contrat — EN HAUT de la card, toujours visible -->
@@ -1058,7 +1062,7 @@
     </div>
 
     <!-- TAB: HISTORY -->
-    <div id="tab-history" class="body" style="display:none;">
+    <div id="tab-history" class="body tab-hidden">
       <!-- Historique de la partie en cours -->
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -1082,7 +1086,7 @@
     </div>
 
     <!-- TAB: PARTIES (Résultat + Historique fusionnés) -->
-    <div id="tab-parties" class="body" style="display:none;">
+    <div id="tab-parties" class="body tab-hidden">
       <!-- Sous-onglets -->
       <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
         <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 En cours</button>
@@ -1093,7 +1097,7 @@
     </div>
 
     <!-- TAB: STATS -->
-    <div id="tab-stats" class="body" style="display:none;">
+    <div id="tab-stats" class="body tab-hidden">
 
       <!-- Partie en cours -->
       <div class="card" id="stats-current-card">
@@ -1134,7 +1138,7 @@
     </div>
 
     <!-- TAB: FEUILLE DE SCORE -->
-    <div id="tab-feuille" class="body" style="display:none;">
+    <div id="tab-feuille" class="body tab-hidden">
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div id="feuille-title" class="card-title" style="margin-bottom:0;font-size:14px;line-height:1.4;">Feuille de score</div>
@@ -1158,7 +1162,7 @@
     </div>
 
     <!-- TAB: MARQUE -->
-    <div id="tab-marque" class="body" style="display:none;">
+    <div id="tab-marque" class="body tab-hidden">
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div class="card-title" style="margin-bottom:0;">Aide à la marque</div>
@@ -1192,7 +1196,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1710</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1740</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1718,13 +1722,13 @@ function showTab(tab) {
   haptic('light');
   ['contrat','saisie','history','stats','marque','feuille','enjeu','parties'].forEach(t=>{
     const el = document.getElementById('tab-'+t);
-    if(el) el.style.display='none';
+    if(el) { el.classList.add('tab-hidden'); el.style.removeProperty('display'); }
   });
   const target = document.getElementById('tab-'+tab);
   if(target) {
-    // Afficher le tab
+    target.classList.remove('tab-hidden');
     target.style.removeProperty('display');
-    target.style.display = 'flex';
+    // Pas de style inline : laisser le CSS (position:fixed selon media query) prendre le contrôle
   }
 
   // Bloquer le scroll de la table quand un overlay est actif
