@@ -368,7 +368,7 @@
     #contrat-confirmer-btn, #contrat-retour-btn { flex: 1 !important; font-size: 12px !important; padding: 10px 6px !important; }
 
     /* Page SCORE */
-    #tab-saisie, #tab-contrat, #tab-history, #tab-stats, #tab-marque { background: #2e6b28 !important; -webkit-transform: translateZ(0) !important; transform: translateZ(0) !important; -webkit-overflow-scrolling: touch !important; will-change: transform !important; }
+    #tab-saisie, #tab-contrat, #tab-history, #tab-stats, #tab-marque { background: #2e6b28 !important; -webkit-overflow-scrolling: touch !important; }
     #tab-saisie #contract-reminder > div { padding: 5px 10px !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; border-radius: 8px !important; }
     #tab-saisie #contract-reminder > div > div:first-child { font-size: 22px !important; }
     #tab-saisie #contract-reminder > div > div:last-child > div:first-child { font-size: 14px !important; }
@@ -1203,7 +1203,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_debug</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1920</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1737,7 +1737,6 @@ function showTab(tab) {
     target.style.display = 'flex';
     // iPad portrait : forcer position:fixed en JS car style inline écrase le CSS
     const isIpadPortrait = window.innerWidth >= 600 && window.innerHeight > window.innerWidth && window.innerWidth < 1025;
-    if(tab !== 'enjeu') alert('w='+window.innerWidth+' h='+window.innerHeight+' isIpadP='+isIpadPortrait);
     if(isIpadPortrait && tab !== 'enjeu') {
       target.style.position = 'fixed';
       target.style.top = '55px';
