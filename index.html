@@ -484,16 +484,16 @@
     #history-title { font-size: 15px !important; }
 
     /* Page TABLE iPad portrait */
-    #tab-enjeu { padding: 20px 24px 100px !important; gap: 20px !important; }
-    #ej-table-wrap { max-width: 100% !important; }
-    #ej-table-wrap svg { max-height: 50vh !important; width: 100% !important; }
-    #ej-score-wrap { max-width: none !important; margin: 0 !important; padding: 16px !important; }
-    #ej-score-wrap .score-board { gap: 16px !important; }
-    #ej-score-wrap .score-team { padding: 20px 24px !important; border-radius: 16px !important; }
-    #ej-score-wrap .score-team .t-name { font-size: 16px !important; }
-    #ej-score-wrap .score-team .t-score { font-size: 72px !important; }
-    #ej-action-grid { max-width: none !important; margin: 0 !important; gap: 12px !important; }
-    #ej-action-grid .btn { font-size: 20px !important; padding: 20px !important; }
+    #tab-enjeu { padding: 20px 24px 90px !important; gap: 24px !important; display: flex !important; flex-direction: column !important; }
+    #ej-table-wrap { max-width: 100% !important; margin: 0 auto !important; }
+    #ej-table-wrap svg { max-height: 45vw !important; width: 100% !important; display: block !important; }
+    #ej-score-wrap { max-width: none !important; width: 100% !important; margin: 0 !important; padding: 20px !important; box-sizing: border-box !important; }
+    #ej-score-wrap .score-board { grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
+    #ej-score-wrap .score-team { padding: 20px 24px !important; border-radius: 16px !important; text-align: center !important; }
+    #ej-score-wrap .score-team .t-name { font-size: 16px !important; margin-bottom: 8px !important; }
+    #ej-score-wrap .score-team .t-score { font-size: 72px !important; line-height: 1 !important; }
+    #ej-action-grid { max-width: none !important; width: 100% !important; margin: 0 !important; gap: 14px !important; display: grid !important; grid-template-columns: 1fr 1fr !important; }
+    #ej-action-grid .btn { font-size: 20px !important; padding: 22px !important; }
 
     /* Page SETUP */
     #screen-setup .body { padding: 16px 24px 90px !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 14px !important; box-sizing: border-box !important; }
@@ -1165,7 +1165,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1630</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1640</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
