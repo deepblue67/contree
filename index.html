@@ -423,6 +423,18 @@
   }
 
 
+    /* Scroll élastique iOS iPhone paysage : backdrop opaque derrière les tabs */
+    body.ipad-overlay-active #tab-enjeu { visibility: hidden !important; }
+    body.ipad-overlay-active::before {
+      content: '' !important;
+      position: fixed !important;
+      top: 44px !important; left: 0 !important; right: 0 !important; bottom: 48px !important;
+      background: #2e6b28 !important;
+      z-index: 490 !important;
+      pointer-events: none !important;
+    }
+  }
+
   /* ════════════════════════════════════════════════════════════════
      3. iPAD PORTRAIT — min-width:700px, portrait
      Nav 70px, setup colonne, mec colonne
@@ -513,16 +525,14 @@
 
     /* Tabs overlay */
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties { position: fixed !important; top: 60px !important; left: 0 !important; right: 0 !important; bottom: 68px !important; z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: none !important; -webkit-overflow-scrolling: touch !important; padding: 20px 40px !important; background: #2e6b28 !important; flex-direction: column !important; touch-action: pan-y !important; }
-    /* Bloquer le scroll élastique iOS quand un overlay est actif */
-    body.ipad-overlay-active { overflow: hidden !important; touch-action: none !important; }
-    body.ipad-overlay-active #tab-enjeu { visibility: hidden !important; pointer-events: none !important; }
-    /* Backdrop opaque qui couvre tout l'espace tab quand overlay actif */
-    body.ipad-overlay-active::before {
+    /* iPad paysage : masquer la table derrière les overlays */
+    body.ipad-landscape-overlay #tab-enjeu { visibility: hidden !important; }
+    body.ipad-landscape-overlay::before {
       content: '' !important;
       position: fixed !important;
-      top: 44px !important; left: 0 !important; right: 0 !important; bottom: 48px !important;
+      top: 60px !important; left: 0 !important; right: 0 !important; bottom: 68px !important;
       background: #2e6b28 !important;
-      z-index: 499 !important;
+      z-index: 150 !important;
       pointer-events: none !important;
     }
     #tab-contrat[style*="display: none"], #tab-saisie[style*="display: none"], #tab-history[style*="display: none"], #tab-stats[style*="display: none"], #tab-marque[style*="display: none"], #tab-feuille[style*="display: none"], #tab-parties[style*="display: none"],
@@ -1145,7 +1155,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1530</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1605</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1687,13 +1697,17 @@ function showTab(tab) {
   // Masquer la roue crantée sur les pages overlay, visible uniquement sur TABLE
   const gearBtn = eid('game-settings-btn');
   if(gearBtn) gearBtn.style.display = (tab === 'enjeu') ? 'flex' : 'none';
-  // Paysage : bloquer le scroll élastique iOS
-  const isLandscapeDevice = window.innerWidth > window.innerHeight;
-  if(isLandscapeDevice) {
+  // iPhone paysage uniquement (hauteur < 500px)
+  const isPhoneLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 500;
+  if(isPhoneLandscape) {
     document.body.classList.toggle('ipad-overlay-active', isOverlay);
+  }
+  // iPad paysage (1025px+)
+  const isIpadLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
+  if(isIpadLandscape) {
+    document.body.classList.toggle('ipad-landscape-overlay', isOverlay);
     if(isOverlay) {
-      document._blockTouch = (e) => {
-        // Laisser scroller à l'intérieur des tabs overlay
+      document._blockTouchiPad = (e) => {
         let el = e.target;
         while(el && el !== document.body) {
           if(el.id && ['tab-contrat','tab-saisie','tab-history','tab-stats','tab-marque','tab-feuille','tab-parties'].includes(el.id)) return;
@@ -1701,14 +1715,15 @@ function showTab(tab) {
         }
         e.preventDefault();
       };
-      document.addEventListener('touchmove', document._blockTouch, { passive: false });
+      document.addEventListener('touchmove', document._blockTouchiPad, { passive: false });
     } else {
-      if(document._blockTouch) {
-        document.removeEventListener('touchmove', document._blockTouch);
-        document._blockTouch = null;
+      if(document._blockTouchiPad) {
+        document.removeEventListener('touchmove', document._blockTouchiPad);
+        document._blockTouchiPad = null;
       }
     }
   }
+
 
 
   ['table','contrat','score','parties','stats'].forEach(t=>{
